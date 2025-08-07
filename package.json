@@ -17,18 +17,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mazeyqian/mazey-lazy-load-images.git"
+    "url": "git+https://github.com/chengchuu/mazey-lazy-load-images.git"
   },
   "keywords": [
     "JavaScript",
     "Function"
   ],
-  "author": "Mazey",
+  "author": "Cheng",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mazeyqian/mazey-lazy-load-images/issues"
+    "url": "https://github.com/chengchuu/mazey-lazy-load-images/issues"
   },
-  "homepage": "https://github.com/mazeyqian/mazey-lazy-load-images",
+  "homepage": "https://github.com/chengchuu/mazey-lazy-load-images",
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/plugin-proposal-class-properties": "^7.10.4",

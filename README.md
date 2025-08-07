@@ -6,7 +6,7 @@
 [npm-image]: https://img.shields.io/npm/v/mazey-lazy-load-images
 [npm-url]: https://npmjs.org/package/mazey-lazy-load-images
 [l-image]: https://img.shields.io/npm/l/mazey-lazy-load-images
-[l-url]: https://github.com/mazeyqian/mazey-lazy-load-images
+[l-url]: https://github.com/chengchuu/mazey-lazy-load-images
 
 Lazy load images.
 
