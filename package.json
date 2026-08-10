@@ -65,6 +65,6 @@
     "webpack-dev-server": "^5.2.6"
   },
   "dependencies": {
-    "mazey": "^1.4.39"
+    "mazey": "^5.6.8"
   }
 }
