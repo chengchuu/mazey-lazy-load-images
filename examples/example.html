@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mazey-lazy-load-images v2 example</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #f8fafc;
+        color: #0f172a;
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+      }
+
+      main {
+        width: min(1200px, 100%);
+        margin: 0 auto;
+      }
+
+      .controls {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin-block-end: 24px;
+        padding: 12px;
+        border-radius: 8px;
+        background: rgb(255 255 255 / 92%);
+        box-shadow: 0 4px 20px rgb(15 23 42 / 10%);
+        backdrop-filter: blur(8px);
+      }
+
+      button {
+        padding: 8px 12px;
+        border: 1px solid #94a3b8;
+        border-radius: 6px;
+        background: #ffffff;
+        color: inherit;
+        cursor: pointer;
+      }
+
+      #event-status {
+        margin-inline-start: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>mazey-lazy-load-images v2</h1>
+      <div class="controls">
+        <button id="show-small" type="button">Show 12 images</button>
+        <button id="show-all" type="button">Show 240 images</button>
+        <button id="destroy" type="button">Destroy</button>
+        <button id="remount" type="button">Remount</button>
+        <output id="event-status" aria-live="polite"></output>
+      </div>
+      <div id="gallery"></div>
+    </main>
+  </body>
+</html>

@@ -2,121 +2,120 @@
 
 ## Scope and public contract
 
-This repository publishes the browser-side `mazey-lazy-load-images` package. The public entry point is `src/index.ts`, which exports only `lazyLoadImages()`. Keep `package.json` fields (`main`, `module`, and `typings`), Rollup outputs, declarations, README examples, and tests aligned whenever the public API changes.
+This repository publishes the React 19-based `mazey-lazy-load-images` package. It renders ordered collection sections containing titles, descriptions, and responsive CSS-column image waterfalls.
 
-The function accepts one configuration object:
+The public root exports:
 
-- `images`: ordered groups shaped as `{ name, img }`, where `img` is an array of image URLs.
-- `container`: a selector passed directly to `document.querySelector()`.
-- `defaultImg`: the placeholder URL assigned before each final image URL is loaded.
+- `LazyImageGallery`: SSR-safe React component for an existing React tree.
+- `mountLazyImageGallery`: browser-only mounting helper that owns one React root.
+- Public item, image, event, prop, and controller types.
 
-It returns `false` when a valid selector matches no element and `true` after initialization. An invalid selector can throw a DOM exception. Image names and URLs are interpolated into `innerHTML`; treat inputs as trusted markup unless a deliberate, documented API change adds escaping or sanitization.
+Version 2 is a clean break from `lazyLoadImages({ images, container, defaultImg })`. Do not restore the v1 adapter unless the user explicitly requests another compatibility release.
+
+Keep package exports, implementation, declarations, README examples, tests, and generated bundles aligned whenever the public contract changes.
 
 ## Repository map and generated boundaries
 
-- `src/index.ts`: package implementation and only public export.
-- `src/example.ts`: development consumer that exercises the source entry point.
-- `src/example.html`: Webpack development-page template and container markup.
-- `test/`: Jest tests. The current number test is only a harness smoke test and does not cover package behavior.
-- `jest.config.cjs`: limits test discovery to `test/**/*.test.js`, excluding generated browser bundles.
-- `rollup.config.mjs`: Rollup 4 package bundling to CommonJS and ES module files in `lib/`.
-- `webpack.config.js`: local example bundling to `dist/`; it is not the npm build.
-- `tsconfig.json`: TypeScript and declaration settings for `src/index.ts`.
-- `docs/`: tracked TypeDoc output. Regenerate it with `npm run docs`; do not hand-edit generated HTML or assets.
-- `lib/` and `dist/`: generated, ignored output. Change sources or build configuration instead of editing them.
-- `.github/workflows/`: pull-request validation and main-branch publication automation. Do not publish, push tags, or trigger release actions during local validation.
+- `src/index.ts`: supported package-root exports.
+- `src/LazyImageGallery.tsx`: collection rendering, image state, one-observer-per-gallery ownership, and cleanup.
+- `src/mountLazyImageGallery.tsx`: target validation and imperative React root controller.
+- `src/types.ts`: public TypeScript contract.
+- `src/styles.ts`: React 19 inline stylesheet source. It is runtime source, not generated CSS.
+- `examples/example.tsx` and `examples/example.html`: Webpack development consumer with 240 mixed images, failure feedback, update, destroy, and remount controls.
+- `test/`: Jest, jsdom, React Testing Library, SSR, packaging, and toolchain tests.
+- `rollup.config.mjs`: CommonJS, ES module, and declaration builds under `lib/`.
+- `webpack.config.js`: development example build under `dist/`.
+- `docs/`, `lib/`, and `dist/`: generated, ignored output. Never edit these directories by hand.
+- `.github/workflows/`: validation and npm publication automation. Do not publish, tag, or push during local verification.
 
-Use Node.js 22 and pnpm 10.26.2, as declared by `.nvmrc`, `engines`, and `packageManager`. `pnpm-lock.yaml` is the dependency authority; update it only when dependency work requires it. Preserve unrelated working-tree files.
+Use Node.js 22 and pnpm 10.26.2, as declared by `.nvmrc`, `engines`, and `packageManager`. `pnpm-lock.yaml` is the dependency authority.
 
-## Frontend hierarchy
+## Runtime boundaries
 
-This package does not use React, Vue, framework components, a virtual DOM, or a component lifecycle. Treat its hierarchy as imperative DOM ownership:
+React and React DOM are peer dependencies and Rollup externals. Keep them in `devDependencies` for local builds and tests, but never bundle them into the published package.
 
-```text
-caller-selected container
-└── .m-box                         created by lazyLoadImages()
-    └── group wrapper              one per images[] entry
-        ├── title wrapper
-        │   └── span               "{index}. {name}"
-        └── .m-img
-            └── image wrapper      one per group.img[] entry
-                └── img.m-img-item placeholder src + final data-src
-```
+The package intentionally has no ordinary runtime dependencies. Version 2 removed Mazey because React lifecycle cleanup and the native Intersection Observer API replace the old throttling and style-insertion helpers.
 
-`src/example.html` owns `.container > .box`; `src/example.ts` passes `.box` to the library. The library replaces all existing content inside the matched container with one generated `.m-box` tree.
+Keep module imports SSR-safe. Do not access `window`, `document`, `Image`, `Element`, or `IntersectionObserver` at module scope or during component render. Browser behavior belongs in effects or the explicitly browser-only mount call.
 
-## State and side effects
-
-There is no application store. State is split between one invocation's closure and shared browser state.
-
-Invocation-local state:
-
-- The selected container, generated HTML strings, and a snapshot of matching image nodes.
-- The `lazyLoad` callback and its 300-pixel preload threshold.
-- Separate throttled scroll and resize callbacks created for that invocation.
-- A placeholder `Image` instance whose `load` event schedules the initial scan.
-
-Shared browser state:
-
-- The selected container's `innerHTML`.
-- `window` scroll position, viewport height, and global scroll/resize listeners.
-- The document-wide `.m-img-item` query. It is not scoped to the selected container.
-- The shared `<style id="mazey-lazy-load-images-style">`, created or updated through Mazey's `addInlineStyle()`.
-- Each image element's `src`, `data-src`, layout position, and browser-native `loading="lazy"` behavior.
-
-The function returns no teardown handle. Every successful call retains two event listeners, and their closures retain the original node snapshot. Account for this before adding repeated initialization, remounting, or multi-instance behavior.
-
-## Configuration and data flow
-
-The input object is prop-like but not reactive:
+The browser mount controller owns its React root:
 
 ```text
-caller configuration
-├── container ──> document.querySelector() ──> innerHTML replacement target
-├── images[].name ──> group title HTML
-├── images[].img[] ──> img[data-src]
-└── defaultImg ──> initial img[src] + placeholder preload sentinel
-
-scroll / resize / placeholder load
-└── throttled lazyLoad()
-    └── compare image.offsetTop with viewport threshold
-        └── copy image.dataset.src to image.src
+mountLazyImageGallery(target, props)
+├── createRoot(target)
+├── update(nextProps) -> root.render(...)
+└── destroy() -> root.unmount()
 ```
 
-Changing the caller's arrays or object after the call does not rerender. Callers must invoke the function again, which currently replaces markup and adds more listeners.
+`destroy()` is idempotent. `update()` after destruction throws. Target selectors throw descriptive errors when empty, invalid, or unmatched.
 
-## Context usage
+## Rendering and loading behavior
 
-There is no React Context, Vue provide/inject, dependency-injection container, event bus, or custom context abstraction. The implicit context is the global `document`, `window`, `Image`, and Mazey utility implementation. Keep DOM-dependent code out of module top-level execution so importing the package does not immediately require a browser environment.
+Render items as ordered semantic sections. Keep each title and description outside that item's image waterfall. Do not flatten images across items.
 
-## Rendering and performance hot paths
+Use CSS multi-columns with `break-inside: avoid`; do not replace them with experimental native masonry without an explicit browser-compatibility decision. CSS columns fill top-to-bottom before moving across columns.
 
-Review changes against these existing bottlenecks and edge cases:
+Each gallery owns one `IntersectionObserver`. Image tiles register with that observer, reveal once within `rootMargin`, and then unobserve. Do not add global scroll or resize listeners, document-wide queries, repeated geometry scans, or unloading when an image leaves the viewport.
 
-- Rendering builds the complete tree as strings and replaces `innerHTML` synchronously. Large collections cause allocation, parsing, and full-subtree replacement costs.
-- Every successful call queries all `.m-img-item` elements in the document, so one instance can process another instance's images or unrelated matching markup.
-- Each throttled scroll/resize callback scans its entire fixed node snapshot every 50 ms. Loaded nodes are not removed from the work set.
-- Each scan reads `offsetTop` and may write `src`; repeated reads and writes across many images can increase layout work.
-- `offsetTop` is relative to an offset parent but is compared with document scroll state, which can be inaccurate in positioned or nested scrolling layouts.
-- Repeated calls multiply global listeners and retain stale or detached nodes because there is no cleanup API.
-- The initial scan waits for `defaultImg` to load. An empty or failed placeholder does not trigger that path, although later scroll or resize events can still trigger loading.
-- The node list is a snapshot, so later DOM additions are not observed.
+Keep the image state contract:
 
-Prefer regression tests before changing these behaviors. High-value cases include multiple containers, repeated initialization, missing and invalid selectors, empty image groups, placeholder load failure, nested layout, listener cleanup, and ensuring an instance does not mutate another instance's nodes. If introducing `IntersectionObserver` or a teardown API, document browser compatibility and update the public contract rather than silently changing semantics.
+```text
+idle -> loading -> loaded
+                -> error -> manual retry -> loading
+```
 
-## Development and validation
+- Idle and loading tiles show CSS skeleton feedback.
+- Optional placeholders begin when the tile is revealed and remain decorative.
+- Final images retain native `loading="lazy"` and `decoding="async"` attributes.
+- Failure shows visible text and a keyboard-operable Retry button; an optional fallback stays decorative behind the message.
+- Retries reuse the original URL without cache-busting and occur only after user action.
+- Browsers without Intersection Observer receive every source immediately and rely on native lazy loading.
 
-Use the existing package scripts through pnpm:
+Strings normalize to `{ src, alt: "" }`. Do not infer alternative text from URLs or titles. Use React rendering for title and description content; never add raw `innerHTML` or `dangerouslySetInnerHTML` support.
 
-- `pnpm run dev`: serve the Webpack example.
-- `pnpm run build`: clean `lib/`, then create package bundles and declarations with Rollup.
-- `pnpm test`: run Jest.
-- `pnpm run docs`: regenerate tracked TypeDoc output.
-- `pnpm run typecheck`: type-check the package without emitting files.
-- `pnpm run lint`: lint TypeScript sources with the ESLint flat configuration.
-- `pnpm run preview`: build and test.
-- `pnpm run lint:fix`: lint and rewrite `src/index.ts`; inspect its diff because it is mutating.
+## Styling
 
-Match validation to the change. For runtime changes, run at least `pnpm run build` and `pnpm test`, then inspect emitted declarations and both bundle formats. For documentation-only changes, use `git diff --check` and review links, commands, and API examples. Before handing off, inspect `git status` and the final diff so generated output and unrelated user changes are not accidentally included.
+`src/styles.ts` is the authority for the namespaced `.mlli-*` defaults. The component renders it through React 19 `<style href precedence>` behavior unless `unstyled` is true.
 
-Do not run `pnpm run release` or publish the package as validation.
+Keep consumer customization behind documented CSS custom properties and stable classes. Preserve reduced-motion behavior, keyboard focus visibility, non-color error text, and the built-in layout defaults unless a public styling change is intentional and documented.
+
+## Build and package rules
+
+Rollup publishes:
+
+- CommonJS: `lib/index.cjs.js`
+- ES module: `lib/index.esm.mjs`
+- TypeScript declarations: `lib/index.d.ts` and its referenced internal declarations
+
+Keep `package.json` `main`, `module`, `types`, `typings`, conditional `exports`, and `files` synchronized with these outputs. Validate both module formats from a packed consumer boundary.
+
+TypeScript targets current evergreen browsers with the React automatic JSX transform. `tsconfig.json` type-checks all package and example source without emitting files. `tsconfig.build.json` narrows declaration generation to the public package graph rooted at `src/index.ts`.
+
+Do not hand-edit generated `lib`, `dist`, or `docs` content. Regenerate through the owning command.
+
+## Tests and validation
+
+Use repository-native commands:
+
+```bash
+pnpm run typecheck
+pnpm run lint
+pnpm run build
+pnpm test
+pnpm run docs
+pnpm run preview
+pnpm pack --dry-run
+```
+
+Match checks to the change. Public runtime work requires component tests, SSR import/render coverage, build inspection, declaration inspection, ESM and CommonJS consumption, and packed-file review.
+
+Maintain tests for:
+
+- string and object normalization, duplicate sources, empty collections, ordering, and stable IDs;
+- one observer per gallery, root margin, reveal behavior, eager fallback, Strict Mode cleanup, and instance isolation;
+- skeleton, placeholder, load, error, fallback, retry, callbacks, and retry attempt numbers;
+- selector validation, update, destroy, repeated destroy, and update-after-destroy behavior;
+- server rendering without browser globals;
+- package externals, export paths, and included files.
+
+Before handoff, inspect `git status`, the complete diff, generated declarations and bundles, and the package manifest. Preserve unrelated work. Never use `pnpm run release` or publish as validation.

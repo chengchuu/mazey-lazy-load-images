@@ -1,34 +1,35 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  mode: 'development',
+  mode: "development",
   entry: {
-    test: './src/example.ts'
+    test: "./examples/example.tsx",
   },
   output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'dist'),
-    clean: true
+    filename: "[name].js",
+    path: path.resolve(__dirname, "dist"),
+    clean: true,
   },
   devServer: {
     static: {
-      directory: path.resolve(__dirname, 'dist')
-    }
+      directory: path.resolve(__dirname, "dist"),
+    },
   },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         use: {
-          loader: 'ts-loader',
+          loader: "ts-loader",
           options: {
             transpileOnly: true,
             compilerOptions: {
               declaration: false,
-              declarationMap: false
-            }
-          }
+              declarationMap: false,
+              jsx: "react-jsx",
+            },
+          },
         },
         exclude: /node_modules/,
       },
@@ -36,12 +37,12 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      filename: path.resolve(__dirname, 'dist/index.html'),
-      template: path.resolve(__dirname, 'src/example.html'),
+      filename: path.resolve(__dirname, "dist/index.html"),
+      template: path.resolve(__dirname, "examples/example.html"),
       inject: true,
-    })
+    }),
   ],
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
-  }
+    extensions: [".tsx", ".ts", ".js"],
+  },
 };

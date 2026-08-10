@@ -1,12 +1,20 @@
 {
   "presets": [
-    ["@babel/preset-env", {
-      "targets": {
-        "browsers": ["> 1%", "last 2 versions", "android>4.0"]
-      },
-      "useBuiltIns": "usage",
-      "corejs": 3
-    }]
+    [
+      "@babel/preset-env",
+      {
+        "bugfixes": true,
+        "modules": "auto",
+        "targets": "defaults, not IE 11"
+      }
+    ],
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic"
+      }
+    ],
+    "@babel/preset-typescript"
   ],
   "sourceType": "unambiguous"
 }
