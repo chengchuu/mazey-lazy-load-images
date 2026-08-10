@@ -98,13 +98,25 @@ DOM
 
 ## Contributing
 
-```
+Development requires Node.js 22 and pnpm 10.26.2.
+
+```bash
+# install dependencies
+pnpm install --frozen-lockfile
+
 # dev
-npm run dev
+pnpm run dev
+
+# type-check and lint
+pnpm run typecheck
+pnpm run lint
+
+# test
+pnpm test
 
 # build
-npm run build
+pnpm run build
 
 # documentation
-npm run docs
+pnpm run docs
 ```

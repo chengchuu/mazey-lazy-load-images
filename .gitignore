@@ -9,6 +9,7 @@ test/e2e/reports
 undefined/
 temp/
 lib/
+docs/
 
 # Editor directories and files
 .idea
