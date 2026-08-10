@@ -21,7 +21,8 @@ Keep package exports, implementation, declarations, README examples, tests, and 
 - `src/mountLazyImageGallery.tsx`: target validation and imperative React root controller.
 - `src/types.ts`: public TypeScript contract.
 - `src/styles.ts`: React 19 inline stylesheet source. It is runtime source, not generated CSS.
-- `examples/example.tsx` and `examples/example.html`: Webpack development consumer with 240 mixed images, failure feedback, update, destroy, and remount controls.
+- `examples/example.tsx` and `examples/example.html`: Webpack development consumer with local assets, 240 remote images, failure feedback, update, destroy, and remount controls.
+- `images/`: JPEG assets bundled only into the Webpack development example.
 - `test/`: Jest, jsdom, React Testing Library, SSR, packaging, and toolchain tests.
 - `rollup.config.mjs`: CommonJS, ES module, and declaration builds under `lib/`.
 - `webpack.config.js`: development example build under `dist/`.
