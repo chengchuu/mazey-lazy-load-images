@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= page.title %></title>
+    <meta name="description" content="<%= page.description %>" />
+    <link rel="canonical" href="<%= page.url %>" />
+    <link rel="icon" href="<%= faviconUrl %>" type="image/png" />
+    <% if (manifestUrl) { %>
+    <link rel="manifest" href="<%= manifestUrl %>" />
+    <% } %>
+    <meta
+      name="theme-color"
+      content="#5b3fd6"
+      data-theme-color
+      data-theme-color-light="#f7f8fc"
+      data-theme-color-dark="#0d1220"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="<%= displayName %>" />
+    <meta property="og:title" content="<%= page.title %>" />
+    <meta property="og:description" content="<%= page.description %>" />
+    <meta property="og:url" content="<%= page.url %>" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="<%= page.title %>" />
+    <meta name="twitter:description" content="<%= page.description %>" />
+    <script type="application/ld+json">
+      <%= jsonLd %>
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to playground controls</a>
+    <header class="site-header">
+      <nav
+        class="navbar navbar-expand-xl site-navbar"
+        aria-label="Primary navigation"
+        data-site-navbar
+      >
+        <div class="container">
+          <a class="navbar-brand d-flex align-items-center gap-2" href="../"
+            ><img
+              class="brand-logo"
+              src="<%= logoUrl %>"
+              width="32"
+              height="32"
+              alt=""
+            /><span><%= displayName %></span></a
+          ><button
+            class="navbar-toggler"
+            type="button"
+            aria-controls="playground-navigation"
+            aria-expanded="false"
+            aria-label="Toggle project navigation"
+            data-nav-toggle
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div
+            id="playground-navigation"
+            class="navbar-collapse"
+            data-mobile-nav
+          >
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item"><a class="nav-link" href="../">Home</a></li>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="./">Playground</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="../#install">Install</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="../#usage">Usage</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="../api/">API</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<%= githubUrl %>">GitHub</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<%= npmUrl %>">npm</a>
+              </li>
+            </ul>
+            <label class="theme-control"
+              ><span>Theme</span
+              ><select
+                class="form-select form-select-sm w-auto"
+                data-theme-select
+                aria-label="Choose playground theme"
+              >
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select></label
+            >
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main id="main-content">
+      <section class="section-band" aria-labelledby="playground-title">
+        <div class="container">
+          <h1 id="playground-title">Lazy image gallery playground</h1>
+          <p>
+            Use the controls to update or destroy a gallery mounted through the
+            package public root API. Scroll through the gallery to observe
+            viewport-based loading, placeholders, fallback handling, and load
+            status.
+          </p>
+          <div class="controls" role="group" aria-label="Gallery controls">
+            <button class="btn btn-primary" id="show-small" type="button">
+              Show 6 images</button
+            ><button class="btn btn-secondary" id="show-all" type="button">
+              Show 18 images</button
+            ><button class="btn btn-outline-danger" id="destroy" type="button">
+              Destroy</button
+            ><button
+              class="btn btn-outline-secondary"
+              id="remount"
+              type="button"
+            >
+              Remount</button
+            ><output id="event-status" aria-live="polite"
+              >Preparing gallery</output
+            >
+          </div>
+          <div id="gallery"></div>
+          <p
+            id="gallery-error"
+            class="alert alert-danger"
+            role="alert"
+            hidden
+          ></p>
+        </div>
+      </section>
+      <section class="section-band section-muted">
+        <div class="container">
+          <h2>Continue with the project</h2>
+          <p>
+            <a href="../">Project home</a> ·
+            <a href="../api/">API documentation</a> ·
+            <a href="<%= githubUrl %>">GitHub repository</a> ·
+            <a href="<%= npmUrl %>">npm package</a>
+          </p>
+        </div>
+      </section>
+    </main>
+    <aside class="pwa-update" data-pwa-update hidden>
+      <span>A website update is available.</span
+      ><button class="btn btn-primary btn-sm" type="button" data-pwa-update-now>
+        Update now
+      </button>
+    </aside>
+    <noscript
+      ><div class="container py-4">
+        <p class="alert alert-warning">
+          JavaScript is required for the interactive gallery. You can still read
+          the <a href="../api/">API documentation</a> or visit the
+          <a href="../">project home page</a>.
+        </p>
+      </div></noscript
+    >
+    <footer class="site-footer">
+      <div class="container">
+        <strong><%= displayName %> playground</strong
+        ><span
+          class="visually-hidden"
+          role="status"
+          aria-live="polite"
+          data-pwa-status
+        ></span>
+      </div>
+    </footer>
+  </body>
+</html>

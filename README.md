@@ -12,6 +12,8 @@ Render responsive, lazy-loaded image collections with React 19. Each collection 
 
 The package renders lightweight placeholders for the complete collection and requests each image when it approaches the viewport. It supports CSS skeletons, optional blurred placeholders, visible failure feedback, fallback images, and manual retries.
 
+[Project website](https://chengchuu.github.io/mazey-lazy-load-images/) · [Playground](https://chengchuu.github.io/mazey-lazy-load-images/playground/) · [API documentation](https://chengchuu.github.io/mazey-lazy-load-images/api/)
+
 ## Install
 
 Install the package and its React 19 peer dependencies:

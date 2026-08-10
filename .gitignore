@@ -1,6 +1,7 @@
 # Output folders
 node_modules/
 dist/
+dist-dev/
 test/unit/coverage
 test/e2e/reports
 

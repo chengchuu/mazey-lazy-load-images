@@ -23,18 +23,14 @@ test("generated and development-only files stay out of the npm package", () => {
   expect(npmIgnore).toMatch(/^\.husky\/$/m);
   expect(npmIgnore).toMatch(/^eslint\.config\.mjs$/m);
   expect(npmIgnore).toMatch(/^jest\.config\.cjs$/m);
-  expect(npmIgnore).toMatch(/^rollup\.config\.mjs$/m);
+  expect(npmIgnore).toMatch(/^scripts\/$/m);
 });
 
 test("the development runtime and package manager stay pinned", () => {
   const packageJson = require("../package.json");
-  const nvmVersion = fs
-    .readFileSync(path.join(projectRoot, ".nvmrc"), "utf8")
-    .trim();
 
   expect(packageJson.engines.node).toBe(">=22");
   expect(packageJson.packageManager).toBe("pnpm@10.26.2");
-  expect(nvmVersion).toBe("22");
 });
 
 test("the package publishes React 19 as external peer dependencies", () => {

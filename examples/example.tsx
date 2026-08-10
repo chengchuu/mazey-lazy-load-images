@@ -96,9 +96,12 @@ function createExampleItems(
   return [localItem, ...createItems(sectionCount, imagesPerSection)];
 }
 
+import "./playground.css";
+
 const galleryElement = document.querySelector("#gallery");
 const statusElement = document.querySelector("#event-status");
-const initialItems = createExampleItems();
+const errorElement = document.querySelector<HTMLElement>("#gallery-error");
+const initialItems = createExampleItems(1, 12);
 let controller: LazyImageGalleryController | undefined;
 let loadCount = 0;
 let errorCount = 0;
@@ -135,14 +138,28 @@ function mount(items: GalleryItem[]): void {
     throw new Error("The gallery example target is missing.");
   }
 
-  controller = mountLazyImageGallery(galleryElement, createGalleryProps(items));
+  try {
+    controller = mountLazyImageGallery(
+      galleryElement,
+      createGalleryProps(items),
+    );
+    if (errorElement) errorElement.hidden = true;
+  } catch (cause) {
+    if (errorElement) {
+      errorElement.hidden = false;
+      errorElement.textContent =
+        cause instanceof Error
+          ? cause.message
+          : "The gallery could not be mounted.";
+    }
+  }
 }
 
 mount(initialItems);
 setStatus();
 
 document.querySelector("#show-small")?.addEventListener("click", () => {
-  controller?.update(createGalleryProps(createExampleItems(1, 12)));
+  controller?.update(createGalleryProps(createExampleItems(0, 0)));
 });
 
 document.querySelector("#show-all")?.addEventListener("click", () => {

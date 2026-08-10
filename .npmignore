@@ -1,6 +1,7 @@
 *.yml
 build/
 dist/
+dist-dev/
 node_modules/
 test/
 .idea
@@ -29,9 +30,10 @@ eslint.config.mjs
 commitlint.config.js
 jest.config.cjs
 rollup.config.js
-rollup.config.mjs
-webpack.config.js
+project.config.js
+site/
+scripts/
+images/
 jsdoc.config.json
 AGENTS.md
 .husky/
-.nvmrc

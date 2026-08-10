@@ -1,0 +1,41 @@
+name: Validate and publish npm package
+
+on:
+  pull_request:
+    branches: [main, "release/v*"]
+  push:
+    branches: ["release/v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+      - run: npm install
+      - run: npm run preview
+      - run: npm pack --dry-run
+
+  publish:
+    needs: validate
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+          registry-url: "https://registry.npmjs.org/"
+      - run: npm install
+      - run: npm run preview
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

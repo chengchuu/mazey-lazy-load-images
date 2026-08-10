@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= page.title %></title>
+    <meta name="description" content="<%= page.description %>" />
+    <link rel="canonical" href="<%= page.url %>" />
+    <link rel="icon" href="<%= faviconUrl %>" type="image/png" />
+    <% if (manifestUrl) { %>
+    <link rel="manifest" href="<%= manifestUrl %>" />
+    <% } %>
+    <meta
+      name="theme-color"
+      content="#5b3fd6"
+      data-theme-color
+      data-theme-color-light="#f7f8fc"
+      data-theme-color-dark="#0d1220"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="<%= displayName %>" />
+    <meta property="og:title" content="<%= page.title %>" />
+    <meta property="og:description" content="<%= page.description %>" />
+    <meta property="og:url" content="<%= page.url %>" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="<%= page.title %>" />
+    <meta name="twitter:description" content="<%= page.description %>" />
+    <script type="application/ld+json">
+      <%= jsonLd %>
+    </script>
+  </head>
+  <body id="top">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header">
+      <nav
+        class="navbar navbar-expand-xl site-navbar"
+        aria-label="Primary navigation"
+        data-site-navbar
+      >
+        <div class="container">
+          <a class="navbar-brand d-flex align-items-center gap-2" href="./"
+            ><img
+              class="brand-logo"
+              src="<%= logoUrl %>"
+              width="32"
+              height="32"
+              alt=""
+            /><span><%= displayName %></span></a
+          >
+          <button
+            class="navbar-toggler"
+            type="button"
+            aria-controls="primary-navigation"
+            aria-expanded="false"
+            aria-label="Toggle project navigation"
+            data-nav-toggle
+          >
+            <span class="navbar-toggler-icon" aria-hidden="true"></span>
+          </button>
+          <div id="primary-navigation" class="navbar-collapse" data-mobile-nav>
+            <ul class="navbar-nav ms-auto align-items-xl-center">
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="./">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./playground/">Playground</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#install">Install</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#usage">Usage</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./api/">API</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<%= githubUrl %>">GitHub</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<%= npmUrl %>">npm</a>
+              </li>
+            </ul>
+            <label class="theme-control"
+              ><span>Theme</span
+              ><select
+                class="form-select form-select-sm w-auto"
+                data-theme-select
+                aria-label="Choose website theme"
+              >
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select></label
+            >
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main id="main-content">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="container">
+          <img
+            src="<%= logoUrl %>"
+            width="72"
+            height="72"
+            alt="<%= displayName %> logo"
+          />
+          <h1 id="hero-title"><%= displayName %></h1>
+          <p class="lead"><%= page.description %></p>
+          <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="./playground/"
+              >Open playground</a
+            ><a class="btn btn-outline-secondary btn-lg" href="./api/"
+              >View API documentation</a
+            ><a class="btn btn-outline-secondary btn-lg" href="<%= githubUrl %>"
+              >View on GitHub</a
+            >
+          </div>
+          <div class="install-command" aria-label="npm installation command">
+            <code><%= installCommand %></code
+            ><button class="btn" type="button" data-copy-install>Copy</button>
+          </div>
+          <p role="status" aria-live="polite" data-copy-status></p>
+        </div>
+      </section>
+      <section class="section-band" aria-labelledby="features-title">
+        <div class="container">
+          <h2 id="features-title">Lazy-loading gallery features</h2>
+          <div class="row g-3">
+            <article class="col-md-4">
+              <div class="card feature-card p-4">
+                <h3 class="h5">Responsive collections</h3>
+                <p>
+                  Render ordered gallery sections with configurable column
+                  width, gaps, and aspect ratios.
+                </p>
+              </div>
+            </article>
+            <article class="col-md-4">
+              <div class="card feature-card p-4">
+                <h3 class="h5">Viewport-aware loading</h3>
+                <p>
+                  Reveal images through IntersectionObserver with placeholders,
+                  fallbacks, and retry feedback.
+                </p>
+              </div>
+            </article>
+            <article class="col-md-4">
+              <div class="card feature-card p-4">
+                <h3 class="h5">React and imperative APIs</h3>
+                <p>
+                  Use the React component directly or mount, update, and destroy
+                  a gallery through the root API.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section
+        id="install"
+        class="section-band section-muted"
+        aria-labelledby="install-title"
+      >
+        <div class="container">
+          <h2 id="install-title">Install</h2>
+          <p>React 19 and React DOM are peer dependencies.</p>
+          <pre class="code-sample"><code><%= installCommand %></code></pre>
+        </div>
+      </section>
+      <section id="usage" class="section-band" aria-labelledby="usage-title">
+        <div class="container">
+          <h2 id="usage-title">Usage</h2>
+          <p>
+            Import the public React component and pass collections with
+            accessible image descriptions.
+          </p>
+          <pre
+            class="code-sample"
+          ><code>import { LazyImageGallery } from "<%= displayName %>";
+
+const items = [{
+  title: "Trip photographs",
+  images: [{ src: "/photo.jpg", alt: "Garden in spring" }],
+}];
+
+export function Gallery() {
+  return &lt;LazyImageGallery items={items} /&gt;;
+}</code></pre>
+        </div>
+      </section>
+    </main>
+    <aside class="pwa-update" data-pwa-update hidden>
+      <span>A website update is available.</span
+      ><button class="btn btn-primary btn-sm" type="button" data-pwa-update-now>
+        Update now
+      </button>
+    </aside>
+    <footer class="site-footer">
+      <div class="container d-flex flex-wrap justify-content-between gap-3">
+        <strong><%= displayName %></strong>
+        <nav aria-label="Footer navigation">
+          <a href="./playground/">Playground</a> · <a href="./api/">API</a> ·
+          <a href="<%= npmUrl %>">npm</a> ·
+          <span data-pwa-install-container hidden
+            ><button type="button" data-pwa-install hidden>
+              Install app
+            </button></span
+          >
+        </nav>
+        <span
+          class="visually-hidden"
+          role="status"
+          aria-live="polite"
+          data-pwa-status
+        ></span>
+      </div>
+    </footer>
+  </body>
+</html>

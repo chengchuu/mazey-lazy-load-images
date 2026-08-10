@@ -1,0 +1,49 @@
+.site-project-links {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.75rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+.site-project-links .theme-control {
+  display: inline-flex;
+  margin-left: auto;
+}
+.site-project-links select,
+.tsd-theme-toggle select {
+  min-height: 1.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.35rem;
+  color: inherit;
+  background: var(--color-background-secondary);
+}
+.site-pwa-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.site-pwa-update {
+  position: fixed;
+  z-index: 101;
+  right: 1rem;
+  bottom: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background: var(--color-background);
+}
+.site-pwa-update[hidden] {
+  display: none;
+}
+@media (max-width: 600px) {
+  .site-project-links a:not(:first-child) {
+    display: none;
+  }
+}
