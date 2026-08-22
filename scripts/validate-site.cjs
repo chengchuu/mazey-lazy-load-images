@@ -1,5 +1,5 @@
 const assert = require("node:assert/strict");
-const { existsSync, readFileSync } = require("node:fs");
+const { existsSync, readFileSync, readdirSync, statSync } = require("node:fs");
 const path = require("node:path");
 const config = require("../project.config.js");
 const docs = path.resolve(__dirname, "../docs");
@@ -12,6 +12,82 @@ function read(relative) {
 }
 function count(haystack, needle) {
   return haystack.split(needle).length - 1;
+}
+function htmlFiles(directory) {
+  return readdirSync(directory).flatMap((name) => {
+    const absolute = path.join(directory, name);
+    return statSync(absolute).isDirectory()
+      ? htmlFiles(absolute)
+      : absolute.endsWith(".html")
+        ? [absolute]
+        : [];
+  });
+}
+function validateThemeToggle(file, html) {
+  const buttons = [
+    ...html.matchAll(
+      /<button\b(?=[^>]*\bdata-theme-toggle\b)[^>]*>[\s\S]*?<\/button>/gi,
+    ),
+  ];
+  assert.equal(buttons.length, 1, `${file} must have one theme toggle`);
+  const button = buttons[0][0];
+  const opening = button.match(/<button\b[^>]*>/i)[0];
+  assert.match(opening, /\btype=["']button["']/i);
+  assert.match(opening, /\bclass=["'][^"']*\btheme-toggle\b[^"']*["']/i);
+  assert.ok(
+    opening.includes(
+      'aria-label="Current theme: Light. Switch to dark theme."',
+    ),
+    `${file} has an invalid initial theme label`,
+  );
+  assert.ok(!/\baria-pressed\b/i.test(opening));
+  for (const theme of ["light", "dark"]) {
+    const icons = [
+      ...button.matchAll(
+        new RegExp(
+          `<svg\\b(?=[^>]*\\bdata-theme-icon=["']${theme}["'])[^>]*>`,
+          "gi",
+        ),
+      ),
+    ];
+    assert.equal(icons.length, 1, `${file} must have one ${theme} theme icon`);
+    const icon = icons[0][0];
+    assert.match(icon, /\bwidth=["']16["']/i);
+    assert.match(icon, /\bheight=["']16["']/i);
+    assert.match(icon, /\baria-hidden=["']true["']/i);
+    assert.match(icon, /\bfocusable=["']false["']/i);
+    assert.equal(/\shidden(?:\s|>|=)/i.test(icon), theme === "dark");
+  }
+  assert.ok(!/\bdata-theme-select\b/i.test(html));
+}
+function validateTypeDocThemeSelector(file, html) {
+  const selectors = [
+    ...html.matchAll(
+      /<select\b(?=[^>]*\bid=["']tsd-theme["'])[^>]*>([\s\S]*?)<\/select>/gi,
+    ),
+  ];
+  assert.equal(
+    selectors.length,
+    1,
+    `${file} must retain one native TypeDoc theme selector`,
+  );
+  const options = [
+    ...selectors[0][1].matchAll(
+      /<option\b[^>]*\bvalue=["']([^"']+)["'][^>]*>([^<]*)<\/option>/gi,
+    ),
+  ].map((option) => [option[1], option[2].trim()]);
+  assert.deepEqual(options, [
+    ["light", "Light"],
+    ["dark", "Dark"],
+  ]);
+  const typeDocScript = html.indexOf('assets/main.js"');
+  const projectScript = html.indexOf('assets/api.js"');
+  assert.ok(typeDocScript >= 0, `${file} is missing the TypeDoc main script`);
+  assert.ok(projectScript >= 0, `${file} is missing the project API script`);
+  assert.ok(
+    typeDocScript < projectScript,
+    `${file} must initialize TypeDoc before the project theme integration`,
+  );
 }
 function validateLocalReferences(file, html, pageUrl) {
   const siteUrl = new URL(config.site.url);
@@ -60,6 +136,13 @@ if (mode === "seo") {
       `${file} must have one h1`,
     );
     validateLocalReferences(file, html, page.url);
+    validateThemeToggle(file, html);
+  }
+  for (const file of htmlFiles(path.join(docs, "api"))) {
+    const relative = path.relative(docs, file).replaceAll(path.sep, "/");
+    const html = read(relative);
+    validateThemeToggle(relative, html);
+    validateTypeDocThemeSelector(relative, html);
   }
   const sitemapLocations = [
     ...read("sitemap.xml").matchAll(/<loc>([^<]+)<\/loc>/g),

@@ -72,11 +72,33 @@ a {
 .navbar-toggler {
   display: none;
 }
-.theme-control {
-  display: flex;
+.theme-toggle {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  padding: 7px;
+  border: 1px solid var(--site-border);
+  border-radius: 50%;
   margin-left: 1rem;
+  color: var(--bs-body-color);
+  background: var(--site-surface);
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  border-color: var(--site-primary);
+  color: var(--site-primary);
+}
+.theme-toggle svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.theme-toggle [hidden] {
+  display: none;
 }
 .hero {
   padding: 5rem 0;
@@ -159,7 +181,7 @@ a {
   .navbar-toggler {
     display: block;
   }
-  .theme-control {
+  .theme-toggle {
     margin: 0.75rem 0;
   }
 }

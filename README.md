@@ -8,18 +8,14 @@
 [license-image]: https://img.shields.io/npm/l/mazey-lazy-load-images
 [license-url]: https://github.com/chengchuu/mazey-lazy-load-images/blob/main/LICENSE
 
-Render responsive, lazy-loaded image collections with React 19. Each collection item contains a title, an optional description, and a CSS-column waterfall of images.
-
-The package renders lightweight placeholders for the complete collection and requests each image when it approaches the viewport. It supports CSS skeletons, optional blurred placeholders, visible failure feedback, fallback images, and manual retries.
+Render responsive, lazy-loaded image collections with titles, optional descriptions, CSS multi-column layouts, placeholders, visible error feedback, fallback images, and manual retries.
 
 [Project website](https://chengchuu.github.io/mazey-lazy-load-images/) · [Playground](https://chengchuu.github.io/mazey-lazy-load-images/playground/) · [API documentation](https://chengchuu.github.io/mazey-lazy-load-images/api/)
 
 ## Install
 
-Install the package and its React 19 peer dependencies:
-
 ```bash
-npm install mazey-lazy-load-images react@^19 react-dom@^19
+npm install mazey-lazy-load-images
 ```
 
 ## Use the React component
@@ -87,7 +83,9 @@ gallery.update({
 gallery.destroy();
 ```
 
-The mount function accepts an `Element` or CSS selector. It throws when the selector is empty, invalid, or unmatched. `update()` replaces the complete gallery prop object, so include any callbacks and nondefault options that must remain active. `destroy()` is idempotent. Calling `update()` after destruction throws an error.
+The mount function accepts an `Element` or CSS selector. It throws when the selector is empty, invalid, or unmatched.
+
+`update()` replaces the complete gallery prop object, so include any callbacks and nondefault options that must remain active. `destroy()` is idempotent, but calling `update()` after destruction throws an error.
 
 For a bundler-free browser page, provide React 19 through an import map and load the package as an ES module:
 
@@ -133,7 +131,7 @@ Each `images` entry accepts a URL string or an object with these fields:
 - `fallbackSrc`: Optional image shown behind the failure message.
 - `fetchPriority`: Browser fetch priority: `high`, `low`, or `auto`.
 
-Gallery-level `defaultPlaceholderSrc` and `defaultFallbackSrc` values apply when an image does not define its own value. Keep placeholder files small because they are separate image requests.
+Gallery-level `defaultPlaceholderSrc` and `defaultFallbackSrc` values apply when an image does not define its own value. Keep placeholder files small because each placeholder triggers a separate image request.
 
 ## Configure loading behavior
 
@@ -146,7 +144,7 @@ Gallery-level `defaultPlaceholderSrc` and `defaultFallbackSrc` values apply when
 - `labels`: Overrides the `loading`, `error`, and `retry` text.
 - `className` and `style`: Extend the gallery root.
 - `unstyled`: Omits the built-in stylesheet.
-- `onImageLoad` and `onImageError`: Receive the normalized image, item and image indexes, request attempt, and `source` or `fallback` stage.
+- `onImageLoad` and `onImageError`: Receive the normalized image, item and image indexes, attempt number, and `source` or `fallback` stage.
 
 The component creates one `IntersectionObserver` per gallery. When Intersection Observer is unavailable, it assigns all final image sources immediately and retains native `loading="lazy"` behavior.
 
@@ -205,7 +203,7 @@ mountLazyImageGallery("#gallery", {
 });
 ```
 
-Version 2 also removes Mazey, global scroll and resize listeners, document-wide image queries, `innerHTML` rendering, and the Boolean initialization result. Keep the returned controller and call `destroy()` when another system removes the mounted page region.
+Version 2 also removes Mazey, global scroll and resize listeners, document-wide image queries, `innerHTML` rendering, and the boolean initialization result. Keep the returned controller and call `destroy()` when another system removes the mounted page region.
 
 ## Browser support
 
@@ -213,7 +211,7 @@ The package targets current Chrome, Edge, Firefox, and Safari releases. CSS mult
 
 The package does not fetch item data, paginate collections, implement infinite scrolling, or virtualize the DOM.
 
-## Contribute
+## Develop
 
 Development requires Node.js 22 and pnpm 10.26.2.
 

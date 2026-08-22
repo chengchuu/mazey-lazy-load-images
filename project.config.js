@@ -8,9 +8,6 @@ const basePath = siteUrl.pathname.endsWith("/")
 const repository = parseGitHubRepository(pkg.repository.url);
 const githubUrl = repository.url;
 const npmUrl = `https://www.npmjs.com/package/${pkg.name}`;
-const peerInstallArguments = Object.entries(pkg.peerDependencies ?? {}).map(
-  ([name, range]) => `${name}@${range}`,
-);
 const pages = {
   home: {
     title: `${pkg.name} - Responsive React Image Galleries`,
@@ -37,7 +34,7 @@ module.exports = deepFreeze({
     name: pkg.name,
     version: pkg.version,
     description: pkg.description,
-    installCommand: `npm install ${[pkg.name, ...peerInstallArguments].join(" ")}`,
+    installCommand: `npm install ${pkg.name}`,
   },
   brand: { displayName: pkg.name, shortName: "Lazy Images" },
   urls: {
