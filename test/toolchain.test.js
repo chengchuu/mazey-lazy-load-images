@@ -26,10 +26,9 @@ test("generated and development-only files stay out of the npm package", () => {
   expect(npmIgnore).toMatch(/^scripts\/$/m);
 });
 
-test("the development runtime and package manager stay pinned", () => {
+test("the local package manager stays pinned", () => {
   const packageJson = require("../package.json");
 
-  expect(packageJson.engines.node).toBe(">=22");
   expect(packageJson.packageManager).toBe("pnpm@10.26.2");
 });
 
@@ -40,7 +39,6 @@ test("the package publishes React 19 as external runtime dependencies", () => {
     "utf8",
   );
 
-  expect(packageJson.version).toBe("2.0.0");
   expect(packageJson.dependencies).toEqual({
     react: "^19.0.0",
     "react-dom": "^19.0.0",

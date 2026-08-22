@@ -18,7 +18,44 @@ Render responsive, lazy-loaded image collections with titles, optional descripti
 npm install mazey-lazy-load-images
 ```
 
+## Basic usage
+
+Add a target element to the page:
+
+```html
+<div id="gallery"></div>
+```
+
+Use `mountLazyImageGallery()` to render the gallery without creating a React component:
+
+```ts
+import { mountLazyImageGallery } from "mazey-lazy-load-images";
+
+const gallery = mountLazyImageGallery("#gallery", {
+  items: [
+    {
+      title: "Travel notes",
+      description: "Images from the latest trip.",
+      images: [
+        {
+          src: "https://example.com/harbor.jpg",
+          alt: "Boats in the harbor at sunset",
+          width: 1200,
+          height: 800,
+        },
+      ],
+    },
+  ],
+});
+```
+
+The mount function accepts an `Element` or CSS selector. It throws when the selector is empty, invalid, or unmatched.
+
+The returned controller provides `update(nextProps)` and `destroy()`. `update()` replaces the complete gallery prop object, so include any callbacks and nondefault options that must remain active. `destroy()` is idempotent, but calling `update()` after destruction throws an error.
+
 ## Use the React component
+
+Use `LazyImageGallery` directly when your application owns the React tree:
 
 ```tsx
 import { LazyImageGallery } from "mazey-lazy-load-images";
@@ -60,32 +97,7 @@ export function Gallery() {
 
 A string image URL is treated as decorative and receives `alt=""`. Use an image object with `alt` for informative images. Provide `width` and `height` when possible so the gallery can reserve the correct aspect ratio before the image loads.
 
-## Mount into a browser page
-
-Use `mountLazyImageGallery()` when the caller does not own a React root:
-
-```ts
-import { mountLazyImageGallery } from "mazey-lazy-load-images";
-
-const galleryProps = {
-  items,
-  defaultPlaceholderSrc: "/images/loading-preview.jpg",
-  defaultFallbackSrc: "/images/unavailable.jpg",
-};
-
-const gallery = mountLazyImageGallery("#gallery", galleryProps);
-
-gallery.update({
-  ...galleryProps,
-  items: nextItems,
-});
-
-gallery.destroy();
-```
-
-The mount function accepts an `Element` or CSS selector. It throws when the selector is empty, invalid, or unmatched.
-
-`update()` replaces the complete gallery prop object, so include any callbacks and nondefault options that must remain active. `destroy()` is idempotent, but calling `update()` after destruction throws an error.
+## Use without a bundler
 
 For a bundler-free browser page, provide React 19 through an import map and load the package as an ES module:
 

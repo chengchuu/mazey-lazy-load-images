@@ -34,7 +34,7 @@ Keep package exports, implementation, declarations, README examples, tests, and 
 - `docs/`, `lib/`, `dist/`, and `dist-dev/`: generated, ignored output. Never edit these directories by hand.
 - `.github/workflows/`: Pages deployment from `main` and `release/v*`; npm publication only from `release/v*`. Do not publish, deploy, tag, or push during local verification.
 
-Use Node.js 22 and pnpm 10.26.2 for local development, as declared by `engines` and `packageManager`. `pnpm-lock.yaml` is the dependency authority. GitHub Actions intentionally use `npm install` without dependency caching.
+Use Node.js 22 and pnpm 10.26.2 for local development. The `packageManager` field records the pnpm version, and `pnpm-lock.yaml` is the dependency authority. GitHub Actions intentionally use Node.js 22 with `npm install` and no dependency caching.
 
 ## Runtime boundaries
 
