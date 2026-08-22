@@ -7,17 +7,47 @@
   white-space: nowrap;
   font-size: 0.82rem;
 }
-.site-project-links .theme-control {
+.site-project-links .theme-toggle {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
   margin-left: auto;
+  width: 28px;
+  height: 28px;
+  padding: 0.25rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 50%;
+  color: inherit;
+  background: var(--color-background-secondary, transparent);
+  cursor: pointer;
 }
-.site-project-links select,
 .tsd-theme-toggle select {
   min-height: 1.75rem;
   border: 1px solid var(--color-accent);
   border-radius: 0.35rem;
   color: inherit;
   background: var(--color-background-secondary);
+}
+.tsd-theme-toggle select option {
+  color: var(--color-text, CanvasText);
+  background-color: var(--color-background, Canvas);
+}
+.tsd-theme-toggle select:focus-visible {
+  outline: none;
+  border-color: var(--color-link);
+}
+.site-project-links .theme-toggle:focus-visible {
+  outline: 2px solid var(--color-focus-outline);
+  outline-offset: 2px;
+}
+.site-project-links .theme-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+.site-project-links .theme-toggle [hidden] {
+  display: none;
 }
 .site-pwa-status {
   position: absolute;

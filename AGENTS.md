@@ -26,20 +26,25 @@ Keep package exports, implementation, declarations, README examples, tests, and 
 - `examples/example.tsx`, `examples/playground.html`, and `examples/playground.css`: crawlable Webpack playground using only the package root API.
 - `images/`: local gallery examples plus maintained website and PWA logo assets.
 - `scripts/build-pages.cjs`: deterministic `docs/` assembly, crawler files, manifest, icons, and TypeDoc transformation.
-- `scripts/validate-site.cjs`: final Pages SEO and PWA artifact validation.
-- `test/`: Jest, jsdom, React Testing Library, SSR, packaging, and toolchain tests.
+- `scripts/theme-markup.cjs`: shared generated TypeDoc theme-button markup and strict native-selector transformation.
+- `scripts/validate-site.cjs`: final Pages SEO, theme, TypeDoc, and PWA artifact validation.
+- `test/`: Jest, jsdom, React Testing Library, SSR, theme, Pages transformation, packaging, and toolchain tests.
 - `scripts/rollup.config.mjs`: CommonJS, ES module, and declaration builds under `lib/`.
 - `scripts/webpack.config.js`: homepage, playground, and API enhancement assets under generated `dist-dev/`.
 - `docs/`, `lib/`, `dist/`, and `dist-dev/`: generated, ignored output. Never edit these directories by hand.
 - `.github/workflows/`: Pages deployment from `main` and `release/v*`; npm publication only from `release/v*`. Do not publish, deploy, tag, or push during local verification.
 
-Use Node.js 22 and pnpm 10.26.2, as declared by `engines` and `packageManager`. `pnpm-lock.yaml` is the dependency authority.
+Use Node.js 22 and pnpm 10.26.2 for local development. The `packageManager` field records the pnpm version, and `pnpm-lock.yaml` is the dependency authority. GitHub Actions intentionally use Node.js 22 with `npm install` and no dependency caching.
 
 ## Runtime boundaries
 
-React and React DOM are peer dependencies and Rollup externals. Keep them in `devDependencies` for local builds and tests, but never bundle them into the published package.
+React and React DOM are runtime dependencies and Rollup externals. They must remain in `dependencies`, not `devDependencies` or `peerDependencies`, and must never be bundled into the published package.
 
-The package intentionally has no ordinary runtime dependencies. Version 2 removed Mazey from the package runtime because React lifecycle cleanup and the native Intersection Observer API replace the old throttling and style-insertion helpers. The website may use Mazey from `devDependencies`; never import website-only code from `src/`.
+React and React DOM are the package's only runtime dependencies. Version 2 removed Mazey from the package runtime because React lifecycle cleanup and the native Intersection Observer API replace the old throttling and style-insertion helpers. The website may use Mazey from `devDependencies`; never import website-only code from `src/`.
+
+Bootstrap, Bootstrap Icons, and Mazey are website-only development dependencies. Inline only the maintained Bootstrap Icons SVG paths; do not ship icon CSS, fonts, or runtime assets with the package.
+
+Website theme controls are two-state light/dark buttons. Resolve the operating-system theme once when no explicit preference exists, then persist only concrete `light` or `dark` selections under the configured project key. Generated API pages retain TypeDoc's native Settings selector after Pages assembly removes its OS option, leaving only Light and Dark. Keep that selector synchronized with the project toolbar button without synthetic change events.
 
 Keep module imports SSR-safe. Do not access `window`, `document`, `Image`, `Element`, or `IntersectionObserver` at module scope or during component render. Browser behavior belongs in effects or the explicitly browser-only mount call.
 
@@ -121,6 +126,8 @@ Maintain tests for:
 - skeleton, placeholder, load, error, fallback, retry, callbacks, and retry attempt numbers;
 - selector validation, update, destroy, repeated destroy, and update-after-destroy behavior;
 - server rendering without browser globals;
-- package externals, export paths, and included files.
+- concrete theme initialization, toggling, failed storage, TypeDoc synchronization, and cleanup;
+- generated theme-button markup, TypeDoc OS-option removal, and final-site SEO/PWA contracts;
+- React runtime dependency placement, Rollup externals, export paths, and included files.
 
 Before handoff, inspect `git status`, the complete diff, generated declarations and bundles, and the package manifest. Preserve unrelated work. Never use `pnpm run release` or publish as validation.
