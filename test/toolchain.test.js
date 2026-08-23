@@ -26,12 +26,6 @@ test("generated and development-only files stay out of the npm package", () => {
   expect(npmIgnore).toMatch(/^scripts\/$/m);
 });
 
-test("the local package manager stays pinned", () => {
-  const packageJson = require("../package.json");
-
-  expect(packageJson.packageManager).toBe("pnpm@10.26.2");
-});
-
 test("the package publishes React 19 as external runtime dependencies", () => {
   const packageJson = require("../package.json");
   const rollupConfig = fs.readFileSync(

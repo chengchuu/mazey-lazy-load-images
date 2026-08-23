@@ -225,20 +225,18 @@ The package does not fetch item data, paginate collections, implement infinite s
 
 ## Develop
 
-Development requires Node.js 22 and pnpm 10.26.2.
-
 ```bash
-pnpm install --frozen-lockfile
-pnpm run typecheck
-pnpm run lint
-pnpm test
-pnpm run build
-pnpm run docs
+npm install
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run docs
 ```
 
 Run the complete local verification pipeline with:
 
 ```bash
-pnpm run preview
-pnpm pack --dry-run
+npm run preview
+npm pack --dry-run
 ```
