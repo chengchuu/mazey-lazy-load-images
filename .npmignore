@@ -1,5 +1,7 @@
 *.yml
 build/
+dist/
+dist-dev/
 node_modules/
 test/
 .idea
@@ -24,7 +26,14 @@ api-extractor.json
 .eslintrc.js
 .babelrc
 .eslintrc
+eslint.config.mjs
 commitlint.config.js
+jest.config.cjs
 rollup.config.js
-webpack.config.js
+project.config.js
+site/
+scripts/
+images/
 jsdoc.config.json
+AGENTS.md
+.husky/

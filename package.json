@@ -1,18 +1,47 @@
 {
   "name": "mazey-lazy-load-images",
-  "version": "1.2.1",
-  "description": "Lazy load images.",
-  "main": "lib/index.cjs.js",
-  "module": "lib/index.esm.js",
-  "typings": "lib/index.d.ts",
+  "version": "2.0.0",
+  "description": "Render responsive, lazy-loaded image collections with React 19.",
+  "main": "./lib/index.cjs.js",
+  "module": "./lib/index.esm.mjs",
+  "types": "./lib/index.d.ts",
+  "typings": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.esm.mjs",
+      "require": "./lib/index.cjs.js",
+      "default": "./lib/index.esm.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
   "mainEntryPointFilePath": "lib/index.d.ts",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.26.2",
   "scripts": {
-    "dev": "webpack-dev-server --open",
-    "build": "npx rollup -c",
+    "dev": "webpack serve --config scripts/webpack.config.js",
+    "clean": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
+    "build": "npm run clean && rollup --forceExit -c scripts/rollup.config.mjs",
     "test": "jest",
-    "docs": "npx typedoc --out docs/ src/",
-    "lint:fix": "eslint ./src/index.ts --ext 'ts,tsx' --fix",
-    "preview": "npm run build && npm run test",
+    "build:site": "webpack --mode production --env pages --config scripts/webpack.config.js",
+    "docs:api": "typedoc --out docs/api --readme README.md --excludePrivate --excludeProtected --excludeInternal --hideGenerator src/index.ts",
+    "docs": "npm run docs:api && npm run build:site && node scripts/build-pages.cjs && npm run seo:validate && npm run pwa:validate",
+    "seo:validate": "node scripts/validate-site.cjs seo",
+    "pwa:validate": "node scripts/validate-site.cjs pwa",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"{src,examples,site}/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"{src,examples,site}/**/*.{ts,tsx}\" --fix",
+    "prepare": "husky",
+    "format:check": "prettier --check .",
+    "preview": "npm run typecheck && npm run lint && npm run build && npm run test -- --runInBand && npm run docs",
     "release": "npm run preview && npm publish"
   },
   "repository": {
@@ -20,61 +49,57 @@
     "url": "git+https://github.com/chengchuu/mazey-lazy-load-images.git"
   },
   "keywords": [
-    "JavaScript",
-    "Function"
+    "React",
+    "TypeScript",
+    "lazy-loading",
+    "masonry",
+    "waterfall-layout",
+    "images"
   ],
   "author": "Cheng",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/chengchuu/mazey-lazy-load-images/issues"
   },
-  "homepage": "https://github.com/chengchuu/mazey-lazy-load-images",
+  "homepage": "https://chengchuu.github.io/mazey-lazy-load-images/",
   "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
-    "@babel/plugin-transform-runtime": "^7.11.0",
-    "@babel/preset-env": "^7.5.5",
-    "@babel/preset-typescript": "^7.10.4",
-    "@babel/runtime-corejs3": "^7.11.2",
-    "@commitlint/cli": "^17.0.3",
-    "@commitlint/config-conventional": "^17.0.3",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "babel-eslint": "^10.1.0",
-    "clean-webpack-plugin": "^1.0.1",
-    "core-js": "^3.6.5",
-    "eslint": "^6.8.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "html-webpack-plugin": "^5.5.0",
-    "http-server": "^14.1.1",
-    "husky": "^4.3.8",
-    "jest": "^27.5.1",
-    "lint-staged": "^10.0.8",
-    "prettier": "^1.19.1",
-    "prettier-eslint-cli": "^5.0.0",
-    "rollup": "^1.31.1",
-    "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-typescript2": "^0.27.2",
-    "ts-loader": "^8.4.0",
-    "typedoc": "^0.23.23",
-    "typescript": "^3.9.7",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "4.11.0"
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
+    "@babel/preset-typescript": "^7.29.7",
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "@eslint/js": "^9.39.2",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "babel-jest": "^30.4.1",
+    "bootstrap": "5.3.8",
+    "css-loader": "^7.1.4",
+    "eslint": "^9.39.2",
+    "html-webpack-plugin": "^5.6.8",
+    "husky": "^9.1.7",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "lint-staged": "^16.4.0",
+    "mazey": "^5.6.8",
+    "mini-css-extract-plugin": "^2.10.2",
+    "prettier": "^3.9.6",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "rollup": "^4.62.4",
+    "ts-loader": "^9.6.2",
+    "tslib": "^2.8.1",
+    "typedoc": "^0.28.20",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.66.0",
+    "webpack": "^5.109.2",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.6"
   },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "lint-staged"
-    }
-  },
-  "dependencies": {
-    "mazey": "^1.4.39"
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }
