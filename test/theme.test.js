@@ -3,11 +3,18 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { jest } from "@jest/globals";
-import { initializeThemeControls } from "../site/theme.ts";
+import { initializeThemeControls as initializeThemeControlsSource } from "../site/theme.ts";
 import projectConfig from "../project.config.js";
 
 const { colorPrimary, colorLight, colorDark, storageKey } =
   projectConfig.site.theme;
+const themeControlCleanups = new Set();
+
+function initializeThemeControls(key) {
+  const cleanup = initializeThemeControlsSource(key);
+  themeControlCleanups.add(cleanup);
+  return cleanup;
+}
 
 function mediaQuery(matches = false) {
   return {
@@ -70,6 +77,8 @@ function expectRenderedTheme(theme) {
 }
 
 afterEach(() => {
+  themeControlCleanups.forEach((cleanup) => cleanup());
+  themeControlCleanups.clear();
   jest.restoreAllMocks();
   localStorage.clear();
   history.replaceState({}, "", "/");
@@ -137,16 +146,16 @@ test("theme controls use compact circular targets", () => {
   expect(apiIcon).toMatch(/(?:^|\s)height: 16px;/);
 });
 
-test("URL preference overrides storage and synchronizes TypeDoc", () => {
+test("storage-key URL preference overrides without persisting", () => {
   renderThemeControls({ typeDoc: true });
-  history.replaceState({}, "", "/?theme=dark");
+  history.replaceState({}, "", `/?${storageKey}=dark`);
   localStorage.setItem(storageKey, "light");
   const media = mediaQuery(false);
   installMatchMedia(media);
 
   const cleanup = initializeThemeControls(storageKey);
   expectRenderedTheme("dark");
-  expect(localStorage.getItem(storageKey)).toBe("dark");
+  expect(localStorage.getItem(storageKey)).toBe("light");
   expect(localStorage.getItem("tsd-theme")).toBe("dark");
   expect(document.querySelector("#tsd-theme").value).toBe("dark");
   expect(media.addEventListener).not.toHaveBeenCalled();
