@@ -1,6 +1,7 @@
 const { deepFreeze, parseGitHubRepository } = require("mazey");
 const pkg = require("./package.json");
 
+const shortName = "Lazy Images";
 const siteUrl = new URL(pkg.homepage);
 const basePath = siteUrl.pathname.endsWith("/")
   ? siteUrl.pathname
@@ -36,7 +37,7 @@ module.exports = deepFreeze({
     description: pkg.description,
     installCommand: `npm install ${pkg.name}`,
   },
-  brand: { displayName: pkg.name, shortName: "Lazy Images" },
+  brand: { displayName: pkg.name, shortName },
   urls: {
     github: githubUrl,
     npm: npmUrl,
@@ -72,7 +73,7 @@ module.exports = deepFreeze({
   },
   pwa: {
     name: pkg.name,
-    shortName: "Lazy Images",
+    shortName,
     description: `Website, playground, and API documentation for ${pkg.name}.`,
     manifestUrl: `${basePath}manifest.webmanifest`,
     serviceWorkerUrl: `${basePath}service-worker.js`,
