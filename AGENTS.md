@@ -124,7 +124,7 @@ Theme controls support concrete light and dark states. When no explicit project 
 
 Keep `main`, `module`, `types`, `typings`, conditional `exports`, and `files` aligned with those outputs. The npm allowlist contains only `lib`, `README.md`, and `LICENSE`; examples, images, site code, tests, scripts, and generated website output must remain outside the package.
 
-`tsconfig.json` type-checks package, example, and site TypeScript without emitting files. `tsconfig.build.json` restricts declaration emission to the package graph rooted at `src/index.ts`. The React automatic JSX transform and ES2018 target are current build contracts.
+`tsconfig.json` type-checks package, example, and site TypeScript without emitting files. `tsconfig.build.json` restricts declaration emission to the package graph rooted at `src/index.ts`. The React automatic JSX transform, ES2022 target, and bundler module resolution are current build contracts.
 
 Pages deploys on pushes to `main` and `release/v*`, plus manual dispatch. The npm workflow validates pull requests to `main` and `release/v*`, but publishes only on pushes to `release/v*`. Do not stage, commit, tag, push, deploy, or publish unless the user explicitly requests that action. Never run `npm run release` as validation because it ends with `npm publish`.
 
