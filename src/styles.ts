@@ -56,6 +56,10 @@ export const DEFAULT_STYLES: string = `
   isolation: isolate;
 }
 
+.mlli-tile[data-status='loaded'] {
+  background: transparent;
+}
+
 .mlli-skeleton {
   position: absolute;
   inset: 0;

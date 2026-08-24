@@ -19,3 +19,7 @@
 #gallery {
   min-height: 8rem;
 }
+#gallery .mlli-root {
+  --mlli-foreground: var(--bs-body-color);
+  --mlli-muted: var(--site-muted);
+}
