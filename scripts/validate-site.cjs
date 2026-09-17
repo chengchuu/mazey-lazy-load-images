@@ -2,6 +2,11 @@ const assert = require("node:assert/strict");
 const { existsSync, readFileSync, readdirSync, statSync } = require("node:fs");
 const path = require("node:path");
 const config = require("../project.config.js");
+const {
+  attributeValue,
+  openingTags,
+  localReferences,
+} = require("./html-attributes.cjs");
 const docs = path.resolve(__dirname, "../docs");
 const mode = process.argv[2];
 
@@ -9,9 +14,6 @@ function read(relative) {
   const file = path.join(docs, relative);
   assert.ok(existsSync(file), `Missing docs/${relative}`);
   return readFileSync(file, "utf8");
-}
-function count(haystack, needle) {
-  return haystack.split(needle).length - 1;
 }
 function htmlFiles(directory) {
   return readdirSync(directory).flatMap((name) => {
@@ -32,30 +34,24 @@ function validateThemeToggle(file, html) {
   assert.equal(buttons.length, 1, `${file} must have one theme toggle`);
   const button = buttons[0][0];
   const opening = button.match(/<button\b[^>]*>/i)[0];
-  assert.match(opening, /\btype=["']button["']/i);
-  assert.match(opening, /\bclass=["'][^"']*\btheme-toggle\b[^"']*["']/i);
-  assert.ok(
-    opening.includes(
-      'aria-label="Current theme: Light. Switch to dark theme."',
-    ),
+  assert.equal(attributeValue(opening, "type"), "button");
+  assert.match(attributeValue(opening, "class") ?? "", /\btheme-toggle\b/);
+  assert.equal(
+    attributeValue(opening, "aria-label"),
+    "Current theme: Light. Switch to dark theme.",
     `${file} has an invalid initial theme label`,
   );
   assert.ok(!/\baria-pressed\b/i.test(opening));
   for (const theme of ["light", "dark"]) {
-    const icons = [
-      ...button.matchAll(
-        new RegExp(
-          `<svg\\b(?=[^>]*\\bdata-theme-icon=["']${theme}["'])[^>]*>`,
-          "gi",
-        ),
-      ),
-    ];
+    const icons = openingTags(button, "svg").filter(
+      (tag) => attributeValue(tag, "data-theme-icon") === theme,
+    );
     assert.equal(icons.length, 1, `${file} must have one ${theme} theme icon`);
-    const icon = icons[0][0];
-    assert.match(icon, /\bwidth=["']16["']/i);
-    assert.match(icon, /\bheight=["']16["']/i);
-    assert.match(icon, /\baria-hidden=["']true["']/i);
-    assert.match(icon, /\bfocusable=["']false["']/i);
+    const icon = icons[0];
+    assert.equal(attributeValue(icon, "width"), "16");
+    assert.equal(attributeValue(icon, "height"), "16");
+    assert.equal(attributeValue(icon, "aria-hidden"), "true");
+    assert.equal(attributeValue(icon, "focusable"), "false");
     assert.equal(/\shidden(?:\s|>|=)/i.test(icon), theme === "dark");
   }
   assert.ok(!/\bdata-theme-select\b/i.test(html));
@@ -91,8 +87,7 @@ function validateTypeDocThemeSelector(file, html) {
 }
 function validateLocalReferences(file, html, pageUrl) {
   const siteUrl = new URL(config.site.url);
-  for (const match of html.matchAll(/(?:href|src)=["']([^"']+)["']/g)) {
-    const reference = match[1];
+  for (const reference of localReferences(html)) {
     if (/^(?:data:|mailto:|tel:|javascript:)/i.test(reference)) continue;
     const url = new URL(reference, pageUrl);
     if (
@@ -122,13 +117,26 @@ if (mode === "seo") {
         `<title>${page.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</title>`,
       ),
     );
-    assert.match(html, /<meta name="description" content="[^"]+"/);
-    assert.ok(html.includes(`rel="canonical" href="${page.url}"`));
-    assert.ok(html.includes(`property="og:url" content="${page.url}"`));
-    assert.equal(
-      count(html, 'rel="canonical"'),
-      1,
-      `${file} must have one canonical`,
+    assert.ok(
+      openingTags(html, "meta").some(
+        (tag) =>
+          attributeValue(tag, "name") === "description" &&
+          attributeValue(tag, "content"),
+      ),
+      `${file} is missing a meta description`,
+    );
+    const canonicals = openingTags(html, "link").filter(
+      (tag) => attributeValue(tag, "rel") === "canonical",
+    );
+    assert.equal(canonicals.length, 1, `${file} must have one canonical`);
+    assert.equal(attributeValue(canonicals[0], "href"), page.url);
+    assert.ok(
+      openingTags(html, "meta").some(
+        (tag) =>
+          attributeValue(tag, "property") === "og:url" &&
+          attributeValue(tag, "content") === page.url,
+      ),
+      `${file} has an invalid og:url`,
     );
     assert.equal(
       (html.match(/<h1\b/g) ?? []).length,
@@ -155,8 +163,16 @@ if (mode === "seo") {
 } else if (mode === "pwa") {
   for (const [file] of pages) {
     const html = read(file);
-    assert.ok(html.includes('rel="manifest"'));
-    assert.ok(html.includes('name="theme-color"'));
+    assert.ok(
+      openingTags(html, "link").some(
+        (tag) => attributeValue(tag, "rel") === "manifest",
+      ),
+    );
+    assert.ok(
+      openingTags(html, "meta").some(
+        (tag) => attributeValue(tag, "name") === "theme-color",
+      ),
+    );
   }
   const manifest = JSON.parse(read("manifest.webmanifest"));
   assert.equal(manifest.scope, config.site.basePath);
