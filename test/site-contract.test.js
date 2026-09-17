@@ -1,9 +1,42 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const config = require("../project.config.js");
+const {
+  attributeValue,
+  openingTags,
+  localReferences,
+} = require("../scripts/html-attributes.cjs");
 
 const root = path.resolve(__dirname, "..");
 const read = (relative) => fs.readFileSync(path.join(root, relative), "utf8");
+
+test("site validation reads quoted and minified HTML attributes", () => {
+  const html =
+    '<meta name=description content="Gallery preview">' +
+    "<link rel=canonical href=https://example.com/gallery/>" +
+    '<a href="/gallery/playground/">Playground</a>' +
+    '<button type=button class="theme-toggle" aria-label="Switch theme">' +
+    "<svg width=16 aria-hidden=true data-theme-icon=light></svg></button>";
+
+  expect(attributeValue(openingTags(html, "meta")[0], "name")).toBe(
+    "description",
+  );
+  expect(attributeValue(openingTags(html, "meta")[0], "content")).toBe(
+    "Gallery preview",
+  );
+  expect(attributeValue(openingTags(html, "link")[0], "rel")).toBe("canonical");
+  expect(attributeValue(openingTags(html, "link")[0], "href")).toBe(
+    "https://example.com/gallery/",
+  );
+  expect(attributeValue(openingTags(html, "button")[0], "type")).toBe("button");
+  expect(attributeValue(openingTags(html, "svg")[0], "data-theme-icon")).toBe(
+    "light",
+  );
+  expect(localReferences(html)).toEqual([
+    "https://example.com/gallery/",
+    "/gallery/playground/",
+  ]);
+});
 
 test("central configuration keeps stable routes below the project base", () => {
   expect(config.site.basePath).toBe("/mazey-lazy-load-images/");

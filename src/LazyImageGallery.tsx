@@ -9,6 +9,7 @@ import {
 import type {
   CSSProperties,
   ImgHTMLAttributes,
+  MouseEvent,
   ReactElement,
   SyntheticEvent,
 } from "react";
@@ -17,6 +18,7 @@ import { DEFAULT_STYLES } from "./styles";
 import type {
   GalleryImage,
   GalleryLabels,
+  ImageClickContext,
   ImageEventContext,
   ImageEventStage,
   LazyImageGalleryProps,
@@ -44,6 +46,10 @@ interface LazyGalleryImageProps {
   labels: GalleryLabels;
   onImageLoad?: (context: ImageEventContext) => void;
   onImageError?: (context: ImageEventContext) => void;
+  onImageClick?: (
+    context: ImageClickContext,
+    event: MouseEvent<HTMLImageElement>,
+  ) => void;
 }
 
 function normalizeImage(image: GalleryImage): NormalizedGalleryImage {
@@ -112,6 +118,7 @@ function LazyGalleryImage({
   labels,
   onImageLoad,
   onImageError,
+  onImageClick,
 }: LazyGalleryImageProps): ReactElement {
   const image = useMemo(() => normalizeImage(imageInput), [imageInput]);
   const tileRef = useRef<HTMLElement | null>(null);
@@ -197,6 +204,12 @@ function LazyGalleryImage({
     );
   };
 
+  const handleSourceClick = (event: MouseEvent<HTMLImageElement>): void => {
+    if (status === "loaded") {
+      onImageClick?.({ image, itemIndex, imageIndex }, event);
+    }
+  };
+
   const handleFallbackLoad = (): void => {
     onImageLoad?.(
       createImageContext(image, itemIndex, imageIndex, attempt, "fallback"),
@@ -262,6 +275,7 @@ function LazyGalleryImage({
         data-loaded={status === "loaded"}
         onLoad={handleSourceLoad}
         onError={handleSourceError}
+        onClick={onImageClick ? handleSourceClick : undefined}
       />
       {status === "error" && fallbackSrc && !fallbackFailed && (
         <img
@@ -302,6 +316,7 @@ export function LazyImageGallery({
   unstyled = false,
   onImageLoad,
   onImageError,
+  onImageClick,
 }: LazyImageGalleryProps): ReactElement {
   const galleryId = useId();
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -423,6 +438,7 @@ export function LazyImageGallery({
                       labels={labels}
                       onImageLoad={onImageLoad}
                       onImageError={onImageError}
+                      onImageClick={onImageClick}
                     />
                   );
                 })}

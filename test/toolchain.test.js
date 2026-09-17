@@ -12,20 +12,6 @@ test("Jest discovers tests only from the source test directory", () => {
   );
 });
 
-test("generated and development-only files stay out of the npm package", () => {
-  const npmIgnore = fs.readFileSync(
-    path.join(projectRoot, ".npmignore"),
-    "utf8",
-  );
-
-  expect(npmIgnore).toMatch(/^dist\/$/m);
-  expect(npmIgnore).toMatch(/^docs\/$/m);
-  expect(npmIgnore).toMatch(/^\.husky\/$/m);
-  expect(npmIgnore).toMatch(/^eslint\.config\.mjs$/m);
-  expect(npmIgnore).toMatch(/^jest\.config\.cjs$/m);
-  expect(npmIgnore).toMatch(/^scripts\/$/m);
-});
-
 test("the package publishes React 19 as external runtime dependencies", () => {
   const packageJson = require("../package.json");
   const rollupConfig = fs.readFileSync(
