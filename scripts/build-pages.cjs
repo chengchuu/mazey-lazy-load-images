@@ -13,6 +13,10 @@ const {
 const { tmpdir } = require("node:os");
 const path = require("node:path");
 const config = require("../project.config.js");
+const {
+  removeTypeDocOsThemeOption,
+  themeToggleHtml,
+} = require("./theme-markup.cjs");
 
 const root = path.resolve(__dirname, "..");
 const docs = path.join(root, "docs");
@@ -60,7 +64,9 @@ function transformApi(file) {
     isIndex ? "" : relative.replace(/index\.html$/, ""),
     config.site.pages.api.url,
   ).href;
-  let html = readFileSync(file, "utf8")
+  let html = readFileSync(file, "utf8");
+  const alreadyTransformed = html.includes(seoStart);
+  html = html
     .replace(new RegExp(`${seoStart}[\\s\\S]*?${seoEnd}`, "g"), "")
     .replace(/<nav class="site-project-links"[\s\S]*?<\/nav>/g, "")
     .replace(/<aside class="site-pwa-update"[\s\S]*?<\/aside>/g, "");
@@ -93,13 +99,11 @@ function transformApi(file) {
   const toolbar = '<div class="tsd-toolbar-contents container">';
   if (!html.includes(toolbar))
     throw new Error(`TypeDoc toolbar is missing in ${relative}.`);
-  const navigation = `<nav class="site-project-links" aria-label="Project links"><a href="${config.site.pages.home.url}">Project home</a><a href="${config.site.pages.api.url}">API overview</a><a href="${config.urls.github}">GitHub</a><a href="${config.urls.npm}">npm package</a><span class="site-pwa-status" role="status" aria-live="polite" data-pwa-status></span><label class="theme-control"><span>Theme</span><select data-theme-select aria-label="Choose API documentation theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></nav>`;
-  html = html
-    .replace(toolbar, toolbar + navigation)
-    .replace(
-      /<div class="tsd-theme-toggle">[\s\S]*?<\/div>/,
-      '<div class="tsd-theme-toggle"><label for="api-theme">Theme</label><select id="api-theme" data-theme-select><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div>',
-    );
+  const navigation = `<nav class="site-project-links" aria-label="Project links"><a href="${config.site.pages.home.url}">Project home</a><a href="${config.site.pages.api.url}">API overview</a><a href="${config.urls.github}">GitHub</a><a href="${config.urls.npm}">npm package</a><span class="site-pwa-status" role="status" aria-live="polite" data-pwa-status></span>${themeToggleHtml()}</nav>`;
+  html = removeTypeDocOsThemeOption(html, relative, alreadyTransformed).replace(
+    toolbar,
+    toolbar + navigation,
+  );
   if (isIndex) {
     html = html.replace(
       /(<div class="tsd-panel tsd-typography">)<h1(\b[^>]*)>([\s\S]*?)<\/h1>/i,

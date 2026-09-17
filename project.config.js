@@ -1,6 +1,7 @@
 const { deepFreeze, parseGitHubRepository } = require("mazey");
 const pkg = require("./package.json");
 
+const shortName = "Lazy Images";
 const siteUrl = new URL(pkg.homepage);
 const basePath = siteUrl.pathname.endsWith("/")
   ? siteUrl.pathname
@@ -8,9 +9,6 @@ const basePath = siteUrl.pathname.endsWith("/")
 const repository = parseGitHubRepository(pkg.repository.url);
 const githubUrl = repository.url;
 const npmUrl = `https://www.npmjs.com/package/${pkg.name}`;
-const peerInstallArguments = Object.entries(pkg.peerDependencies ?? {}).map(
-  ([name, range]) => `${name}@${range}`,
-);
 const pages = {
   home: {
     title: `${pkg.name} - Responsive React Image Galleries`,
@@ -37,9 +35,9 @@ module.exports = deepFreeze({
     name: pkg.name,
     version: pkg.version,
     description: pkg.description,
-    installCommand: `npm install ${[pkg.name, ...peerInstallArguments].join(" ")}`,
+    installCommand: `npm install ${pkg.name}`,
   },
-  brand: { displayName: pkg.name, shortName: "Lazy Images" },
+  brand: { displayName: pkg.name, shortName },
   urls: {
     github: githubUrl,
     npm: npmUrl,
@@ -75,7 +73,7 @@ module.exports = deepFreeze({
   },
   pwa: {
     name: pkg.name,
-    shortName: "Lazy Images",
+    shortName,
     description: `Website, playground, and API documentation for ${pkg.name}.`,
     manifestUrl: `${basePath}manifest.webmanifest`,
     serviceWorkerUrl: `${basePath}service-worker.js`,

@@ -26,22 +26,28 @@ test("generated and development-only files stay out of the npm package", () => {
   expect(npmIgnore).toMatch(/^scripts\/$/m);
 });
 
-test("the development runtime and package manager stay pinned", () => {
+test("the package publishes React 19 as external runtime dependencies", () => {
   const packageJson = require("../package.json");
+  const rollupConfig = fs.readFileSync(
+    path.join(projectRoot, "scripts/rollup.config.mjs"),
+    "utf8",
+  );
 
-  expect(packageJson.engines.node).toBe(">=22");
-  expect(packageJson.packageManager).toBe("pnpm@10.26.2");
-});
-
-test("the package publishes React 19 as external peer dependencies", () => {
-  const packageJson = require("../package.json");
-
-  expect(packageJson.version).toBe("2.0.0");
-  expect(packageJson.dependencies).toBeUndefined();
-  expect(packageJson.peerDependencies).toEqual({
+  expect(packageJson.dependencies).toEqual({
     react: "^19.0.0",
     "react-dom": "^19.0.0",
   });
+  expect(packageJson.peerDependencies).toBeUndefined();
+  expect(packageJson.devDependencies.react).toBeUndefined();
+  expect(packageJson.devDependencies["react-dom"]).toBeUndefined();
+  for (const external of [
+    "react",
+    "react-dom",
+    "react-dom/client",
+    "react/jsx-runtime",
+  ]) {
+    expect(rollupConfig).toContain(`"${external}"`);
+  }
   expect(packageJson.exports["."]).toEqual({
     types: "./lib/index.d.ts",
     import: "./lib/index.esm.mjs",

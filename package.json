@@ -1,6 +1,6 @@
 {
   "name": "mazey-lazy-load-images",
-  "version": "2.0.0",
+  "version": "2.0.3",
   "description": "Render responsive, lazy-loaded image collections with React 19.",
   "main": "./lib/index.cjs.js",
   "module": "./lib/index.esm.mjs",
@@ -22,10 +22,6 @@
   ],
   "sideEffects": false,
   "mainEntryPointFilePath": "lib/index.d.ts",
-  "engines": {
-    "node": ">=22"
-  },
-  "packageManager": "pnpm@10.26.2",
   "scripts": {
     "dev": "webpack serve --config scripts/webpack.config.js",
     "clean": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
@@ -62,6 +58,10 @@
     "url": "https://github.com/chengchuu/mazey-lazy-load-images/issues"
   },
   "homepage": "https://chengchuu.github.io/mazey-lazy-load-images/",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@babel/preset-env": "^7.29.7",
@@ -76,6 +76,7 @@
     "@types/react-dom": "^19.2.3",
     "babel-jest": "^30.4.1",
     "bootstrap": "5.3.8",
+    "bootstrap-icons": "^1.13.1",
     "css-loader": "^7.1.4",
     "eslint": "^9.39.2",
     "html-webpack-plugin": "^5.6.8",
@@ -83,11 +84,9 @@
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "lint-staged": "^16.4.0",
-    "mazey": "^5.6.8",
+    "mazey": "^5.7.4",
     "mini-css-extract-plugin": "^2.10.2",
     "prettier": "^3.9.6",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
     "rollup": "^4.62.4",
     "ts-loader": "^9.6.2",
     "tslib": "^2.8.1",
@@ -97,9 +96,5 @@
     "webpack": "^5.109.2",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.6"
-  },
-  "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
   }
 }

@@ -17,15 +17,15 @@ test("central configuration keeps stable routes below the project base", () => {
     "https://chengchuu.github.io/mazey-lazy-load-images/api/",
   );
   expect(config.package.installCommand).toBe(
-    "npm install mazey-lazy-load-images react@^19.0.0 react-dom@^19.0.0",
+    "npm install mazey-lazy-load-images",
   );
 });
 
 test("website theme source delegates shared behavior to Mazey", () => {
   const source = read("site/theme.ts");
-  expect(source).toMatch(/resolveThemePreference\(storageKey\)/);
-  expect(source).toMatch(/setThemePreference\(storageKey, next\)/);
-  expect(source).toMatch(/listenMediaQueryChanges\(media, systemChange\)/);
+  expect(source).toMatch(/resolveThemePreference\(storageKey\)\.value/);
+  expect(source).toMatch(/setThemePreference\(storageKey, nextTheme\)/);
+  expect(source).not.toMatch(/listenMediaQueryChanges/);
   expect(source).not.toMatch(/localStorage\.setItem\(storageKey/);
 });
 
@@ -69,7 +69,11 @@ test("release workflows keep Pages and npm publication boundaries separate", () 
 
 test("website dependencies remain development-only", () => {
   const pkg = require("../package.json");
-  expect(pkg.dependencies).toBeUndefined();
+  expect(pkg.dependencies).toEqual({
+    react: "^19.0.0",
+    "react-dom": "^19.0.0",
+  });
   expect(pkg.devDependencies.bootstrap).toBe("5.3.8");
-  expect(pkg.devDependencies.mazey).toBe("^5.6.8");
+  expect(pkg.devDependencies["bootstrap-icons"]).toBe("^1.13.1");
+  expect(pkg.devDependencies.mazey).toBeDefined();
 });

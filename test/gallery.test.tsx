@@ -2,6 +2,7 @@ import { StrictMode, act } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 import { LazyImageGallery, mountLazyImageGallery } from "../src";
+import { DEFAULT_STYLES } from "../src/styles";
 import type {
   GalleryItem,
   ImageEventContext,
@@ -100,6 +101,15 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+});
+
+test("keeps feedback backgrounds while loaded tiles are transparent", () => {
+  expect(DEFAULT_STYLES).toMatch(
+    /\.mlli-tile \{[^}]*background: var\(--mlli-background\);[^}]*\}/,
+  );
+  expect(DEFAULT_STYLES).toMatch(
+    /\.mlli-tile\[data-status='loaded'\] \{\s*background: transparent;\s*\}/,
+  );
 });
 
 test("renders ordered sections and normalizes string and object images", () => {
