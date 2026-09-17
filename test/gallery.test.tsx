@@ -1,10 +1,12 @@
 import { StrictMode, act } from "react";
+import type { MouseEvent } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 import { LazyImageGallery, mountLazyImageGallery } from "../src";
 import { DEFAULT_STYLES } from "../src/styles";
 import type {
   GalleryItem,
+  ImageClickContext,
   ImageEventContext,
   LazyImageGalleryController,
 } from "../src";
@@ -246,6 +248,94 @@ test("reveals only intersecting images and reports successful loads", () => {
   );
 });
 
+test("reports clicks only on loaded source images with normalized context", () => {
+  const onImageClick = jest.fn<
+    void,
+    [ImageClickContext, MouseEvent<HTMLImageElement>]
+  >();
+  const { container } = render(
+    <LazyImageGallery items={items} onImageClick={onImageClick} />,
+  );
+  const tile = container.querySelectorAll<HTMLElement>(".mlli-tile")[1];
+  const source = tile.querySelector<HTMLImageElement>(".mlli-image")!;
+
+  fireEvent.click(source);
+  act(() => latestObserver().intersect(tile));
+  fireEvent.click(source);
+  fireEvent.click(tile.querySelector(".mlli-placeholder")!);
+  expect(onImageClick).not.toHaveBeenCalled();
+
+  fireEvent.load(source);
+  fireEvent.click(source);
+  expect(onImageClick).toHaveBeenCalledTimes(1);
+  expect(onImageClick).toHaveBeenCalledWith(
+    {
+      image: items[0].images[1],
+      itemIndex: 0,
+      imageIndex: 1,
+    },
+    expect.objectContaining({ type: "click", target: source }),
+  );
+  expect(Object.keys(onImageClick.mock.calls[0][0])).toEqual([
+    "image",
+    "itemIndex",
+    "imageIndex",
+  ]);
+});
+
+test("ignores source, fallback, and retry clicks during errors until retry loads", () => {
+  const onImageClick = jest.fn<
+    void,
+    [ImageClickContext, MouseEvent<HTMLImageElement>]
+  >();
+  const { container } = render(
+    <LazyImageGallery items={items} onImageClick={onImageClick} />,
+  );
+  const tile = container.querySelectorAll<HTMLElement>(".mlli-tile")[1];
+  act(() => latestObserver().intersect(tile));
+  const source = tile.querySelector<HTMLImageElement>(".mlli-image")!;
+  fireEvent.error(source);
+  fireEvent.click(source);
+  fireEvent.click(tile.querySelector(".mlli-fallback")!);
+  fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+  expect(onImageClick).not.toHaveBeenCalled();
+
+  const retriedSource = tile.querySelector<HTMLImageElement>(".mlli-image")!;
+  fireEvent.click(retriedSource);
+  expect(onImageClick).not.toHaveBeenCalled();
+  fireEvent.load(retriedSource);
+  fireEvent.click(retriedSource);
+  expect(onImageClick).toHaveBeenCalledTimes(1);
+});
+
+test("keeps source markup unchanged without the click callback and updates handlers", () => {
+  const first = jest.fn<
+    void,
+    [ImageClickContext, MouseEvent<HTMLImageElement>]
+  >();
+  const second = jest.fn<
+    void,
+    [ImageClickContext, MouseEvent<HTMLImageElement>]
+  >();
+  const { container, rerender } = render(<LazyImageGallery items={items} />);
+  const tile = container.querySelectorAll<HTMLElement>(".mlli-tile")[1];
+  act(() => latestObserver().intersect(tile));
+  const source = tile.querySelector<HTMLImageElement>(".mlli-image")!;
+  fireEvent.load(source);
+  const defaultMarkup = source.outerHTML;
+
+  rerender(<LazyImageGallery items={items} onImageClick={first} />);
+  expect(source.outerHTML).toBe(defaultMarkup);
+  expect(source.hasAttribute("role")).toBe(false);
+  expect(source.hasAttribute("tabindex")).toBe(false);
+  fireEvent.click(source);
+
+  rerender(<LazyImageGallery items={items} onImageClick={second} />);
+  fireEvent.click(source);
+  expect(first).toHaveBeenCalledTimes(1);
+  expect(second).toHaveBeenCalledTimes(1);
+});
+
 test("shows placeholder, failure feedback, fallback, and manual retry", () => {
   const onImageError = jest.fn<void, [ImageEventContext]>();
   const { container } = render(
@@ -472,6 +562,55 @@ test("updates an image source with a stable image id and observes it again", () 
   expect(nextImage.src).toBe("https://example.com/new.jpg");
 });
 
+test("clicks use the current image and indexes after a gallery update", () => {
+  const onImageClick = jest.fn<
+    void,
+    [ImageClickContext, MouseEvent<HTMLImageElement>]
+  >();
+  const { container, rerender } = render(
+    <LazyImageGallery items={items} onImageClick={onImageClick} />,
+  );
+  const firstTile = container.querySelectorAll<HTMLElement>(".mlli-tile")[1];
+  act(() => latestObserver().intersect(firstTile));
+  const firstSource = firstTile.querySelector<HTMLImageElement>(".mlli-image")!;
+  fireEvent.load(firstSource);
+
+  rerender(
+    <LazyImageGallery
+      items={[
+        {
+          title: "New collection",
+          images: [
+            {
+              id: "portrait",
+              src: "https://example.com/new-portrait.jpg",
+              alt: "New portrait",
+            },
+          ],
+        },
+      ]}
+      onImageClick={onImageClick}
+    />,
+  );
+  const nextTile = container.querySelector<HTMLElement>(".mlli-tile")!;
+  const nextSource = nextTile.querySelector<HTMLImageElement>(".mlli-image")!;
+  fireEvent.click(nextSource);
+  act(() => latestObserver().intersect(nextTile));
+  fireEvent.load(nextSource);
+  fireEvent.click(nextSource);
+
+  expect(onImageClick).toHaveBeenCalledTimes(1);
+  expect(onImageClick.mock.calls[0][0]).toEqual({
+    image: {
+      id: "portrait",
+      src: "https://example.com/new-portrait.jpg",
+      alt: "New portrait",
+    },
+    itemIndex: 0,
+    imageIndex: 0,
+  });
+});
+
 test("re-observes a stable image when its responsive source changes", () => {
   const createResponsiveItems = (srcSet: string): GalleryItem[] => [
     {
@@ -547,6 +686,37 @@ test("mount API validates targets, updates props, and destroys idempotently", ()
   expect(() => mountLazyImageGallery("#missing", { items: [] })).toThrow(
     "could not find a target",
   );
+});
+
+test("mount updates the click callback without retaining the previous handler", () => {
+  const target = document.createElement("div");
+  document.body.appendChild(target);
+  const first = jest.fn<
+    void,
+    [ImageClickContext, MouseEvent<HTMLImageElement>]
+  >();
+  const second = jest.fn<
+    void,
+    [ImageClickContext, MouseEvent<HTMLImageElement>]
+  >();
+  let controller: LazyImageGalleryController;
+
+  act(() => {
+    controller = mountLazyImageGallery(target, { items, onImageClick: first });
+  });
+  const tile = target.querySelectorAll<HTMLElement>(".mlli-tile")[1];
+  act(() => latestObserver().intersect(tile));
+  const source = tile.querySelector<HTMLImageElement>(".mlli-image")!;
+  fireEvent.load(source);
+  fireEvent.click(source);
+
+  act(() => controller.update({ items, onImageClick: second }));
+  fireEvent.click(source);
+  expect(first).toHaveBeenCalledTimes(1);
+  expect(second).toHaveBeenCalledTimes(1);
+
+  act(() => controller.destroy());
+  target.remove();
 });
 
 test("omits default styles when unstyled is enabled", () => {

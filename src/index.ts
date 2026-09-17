@@ -5,6 +5,7 @@ export type {
   GalleryImageConfig,
   GalleryItem,
   GalleryLabels,
+  ImageClickContext,
   ImageEventContext,
   ImageEventStage,
   LazyImageGalleryController,

@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, MouseEvent, ReactNode } from "react";
 
 export type ImageEventStage = "source" | "fallback";
 
@@ -51,6 +51,12 @@ export interface ImageEventContext {
   stage: ImageEventStage;
 }
 
+export interface ImageClickContext {
+  image: NormalizedGalleryImage;
+  itemIndex: number;
+  imageIndex: number;
+}
+
 export interface LazyImageGalleryProps {
   items: readonly GalleryItem[];
   rootMargin?: string;
@@ -65,6 +71,10 @@ export interface LazyImageGalleryProps {
   unstyled?: boolean;
   onImageLoad?: (context: ImageEventContext) => void;
   onImageError?: (context: ImageEventContext) => void;
+  onImageClick?: (
+    context: ImageClickContext,
+    event: MouseEvent<HTMLImageElement>,
+  ) => void;
 }
 
 export interface LazyImageGalleryController {
