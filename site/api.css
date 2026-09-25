@@ -56,22 +56,6 @@
   overflow: hidden;
   clip-path: inset(50%);
 }
-.site-pwa-update {
-  position: fixed;
-  z-index: 101;
-  right: 1rem;
-  bottom: 1rem;
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 0.75rem;
-  border: 1px solid var(--color-accent);
-  border-radius: 0.5rem;
-  background: var(--color-background);
-}
-.site-pwa-update[hidden] {
-  display: none;
-}
 @media (max-width: 600px) {
   .site-project-links a:not(:first-child) {
     display: none;
