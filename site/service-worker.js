@@ -4,18 +4,20 @@ const CACHE_PREFIX = "__PWA_CACHE_PREFIX__";
 const CACHE_NAME = `${CACHE_PREFIX}__PWA_CACHE_VERSION__`;
 const API_APP_SHELL = __PWA_API_APP_SHELL__;
 const APP_SHELL = [
-  PROJECT_BASE,
-  `${PROJECT_BASE}playground/`,
-  `${PROJECT_BASE}api/`,
-  `${PROJECT_BASE}manifest.webmanifest`,
-  `${PROJECT_BASE}assets/shared.css`,
-  `${PROJECT_BASE}assets/shared.js`,
-  `${PROJECT_BASE}assets/home.js`,
-  `${PROJECT_BASE}assets/playground.js`,
-  `${PROJECT_BASE}assets/playground.css`,
-  `${PROJECT_BASE}assets/api.js`,
-  `${PROJECT_BASE}assets/api.css`,
-  ...API_APP_SHELL,
+  ...new Set([
+    PROJECT_BASE,
+    `${PROJECT_BASE}playground/`,
+    `${PROJECT_BASE}api/`,
+    `${PROJECT_BASE}manifest.webmanifest`,
+    `${PROJECT_BASE}assets/shared.css`,
+    `${PROJECT_BASE}assets/shared.js`,
+    `${PROJECT_BASE}assets/home.js`,
+    `${PROJECT_BASE}assets/playground.js`,
+    `${PROJECT_BASE}assets/playground.css`,
+    `${PROJECT_BASE}assets/api.js`,
+    `${PROJECT_BASE}assets/api.css`,
+    ...API_APP_SHELL,
+  ]),
 ];
 const APP_SHELL_PATHS = new Set(APP_SHELL);
 
@@ -90,9 +92,6 @@ self.addEventListener("activate", (event) =>
       .then(() => self.clients.claim()),
   ),
 );
-self.addEventListener("message", (event) => {
-  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
-});
 self.addEventListener("fetch", (event) => {
   if (!isProjectRequest(event.request)) return;
   const destination = event.request.destination;
