@@ -1,4 +1,4 @@
-import { isStandalonePWA, watchServiceWorkerUpdates } from "mazey";
+import { isStandalonePWA } from "mazey";
 
 export interface SitePwaConfig {
   appName: string;
@@ -89,37 +89,8 @@ function canRegister(config: SitePwaConfig): boolean {
 async function register(config: SitePwaConfig): Promise<void> {
   if (!canRegister(config)) return;
   try {
-    const registration = await navigator.serviceWorker.register(
-      config.serviceWorkerUrl,
-      { scope: config.scope },
-    );
-    const notice = document.querySelector<HTMLElement>("[data-pwa-update]");
-    const button = document.querySelector<HTMLButtonElement>(
-      "[data-pwa-update-now]",
-    );
-    let requested = false;
-    const watcher = watchServiceWorkerUpdates(
-      registration,
-      navigator.serviceWorker,
-      {
-        onUpdateAvailable() {
-          if (notice) notice.hidden = false;
-          announce(
-            `A new version of the ${config.appName} website is available.`,
-          );
-        },
-        onControllerChange() {
-          if (notice) notice.hidden = true;
-          if (requested) location.reload();
-        },
-      },
-    );
-    button?.addEventListener("click", () => {
-      requested = watcher.activateWaiting();
-      if (requested) {
-        button.disabled = true;
-        announce("Updating the website now.");
-      }
+    await navigator.serviceWorker.register(config.serviceWorkerUrl, {
+      scope: config.scope,
     });
   } catch (error) {
     console.error(

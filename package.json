@@ -1,7 +1,7 @@
 {
   "name": "mazey-lazy-load-images",
-  "version": "2.1.0",
-  "description": "Render responsive, lazy-loaded image collections with React 19.",
+  "version": "2.1.1",
+  "description": "Render responsive, lazy-loaded image collections.",
   "main": "./lib/index.cjs.js",
   "module": "./lib/index.esm.mjs",
   "types": "./lib/index.d.ts",

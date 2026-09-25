@@ -71,6 +71,8 @@ test("service worker limits requests and preserves its app shell", () => {
   expect(source).toMatch(/!APP_SHELL_PATHS\.has/);
   expect(source).toContain("`${PROJECT_BASE}assets/playground.css`");
   expect(source).toContain("...API_APP_SHELL");
+  expect(source).not.toMatch(/SKIP_WAITING|skipWaiting\s*\(/);
+  expect(source).toMatch(/const APP_SHELL = \[\s*\.\.\.new Set\(\[/);
 });
 
 test("Pages cache fingerprint hashes artifact contents", () => {
