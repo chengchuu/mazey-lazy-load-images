@@ -10,7 +10,9 @@
 
 Render responsive, lazy-loaded image collections with titles, optional descriptions, CSS multi-column layouts, placeholders, visible error feedback, fallback images, and manual retries.
 
-[Project website](https://chengchuu.github.io/mazey-lazy-load-images/) · [Playground](https://chengchuu.github.io/mazey-lazy-load-images/playground/) · [API documentation](https://chengchuu.github.io/mazey-lazy-load-images/api/)
+- [Project website](https://chengchuu.github.io/mazey-lazy-load-images/)
+- [Playground](https://chengchuu.github.io/mazey-lazy-load-images/playground/)
+- [API documentation](https://chengchuu.github.io/mazey-lazy-load-images/api/)
 
 ## Install
 
@@ -40,8 +42,6 @@ const gallery = mountLazyImageGallery("#gallery", {
         {
           src: "https://example.com/harbor.jpg",
           alt: "Boats in the harbor at sunset",
-          width: 1200,
-          height: 800,
         },
       ],
     },
@@ -157,8 +157,31 @@ Gallery-level `defaultPlaceholderSrc` and `defaultFallbackSrc` values apply when
 - `className` and `style`: Extend the gallery root.
 - `unstyled`: Omits the built-in stylesheet.
 - `onImageLoad` and `onImageError`: Receive the normalized image, item and image indexes, attempt number, and `source` or `fallback` stage.
+- `onImageClick`: Optional callback for clicks on a successfully loaded source image. Receives its normalized image, item and image indexes, and the React mouse event.
 
 The component creates one `IntersectionObserver` per gallery. When Intersection Observer is unavailable, it assigns all final image sources immediately and retains native `loading="lazy"` behavior.
+
+## Handle image clicks
+
+Pass `onImageClick` when your application needs to respond to a loaded image being clicked:
+
+```tsx
+<LazyImageGallery
+  items={items}
+  onImageClick={({ image, itemIndex, imageIndex }, event) => {
+    console.log(
+      image.src,
+      itemIndex,
+      imageIndex,
+      event.currentTarget.currentSrc,
+    );
+  }}
+/>
+```
+
+The callback does not run for images that are still loading or have failed, placeholders, fallbacks, or Retry buttons. It does not include the load/error callback's `attempt` or `stage` fields. `mountLazyImageGallery()` accepts the same prop; include it again in `update(nextProps)` to keep it active.
+
+This is a pointer-click hook, not an accessible activation control. The gallery does not add button semantics, keyboard handling, focusability, a pointer cursor, or a default action. If clicking an image opens a detail view, provide a separate keyboard-operable, visibly focusable control with a meaningful accessible name in your application.
 
 ## Customize styles
 

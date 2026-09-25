@@ -7,6 +7,7 @@ import { LazyImageGallery } from "../src";
 test("imports and renders without browser globals", () => {
   expect(typeof globalThis.window).toBe("undefined");
   expect(typeof globalThis.document).toBe("undefined");
+  const onImageClick = jest.fn();
 
   const html = renderToString(
     <LazyImageGallery
@@ -24,6 +25,7 @@ test("imports and renders without browser globals", () => {
           ],
         },
       ]}
+      onImageClick={onImageClick}
     />,
   );
 
@@ -31,4 +33,5 @@ test("imports and renders without browser globals", () => {
   expect(html).toContain("Server-rendered example");
   expect(html).not.toContain('src="https://example.com/server.jpg"');
   expect(html).toContain("mazey-lazy-load-images-default-styles-v2");
+  expect(onImageClick).not.toHaveBeenCalled();
 });
