@@ -161,6 +161,22 @@ if (mode === "seo") {
   );
   assert.ok(read("robots.txt").includes(`Sitemap: ${config.urls.sitemap}`));
 } else if (mode === "pwa") {
+  for (const file of htmlFiles(docs)) {
+    const relative = path.relative(docs, file).replaceAll(path.sep, "/");
+    const html = read(relative);
+    for (const forbidden of [
+      "data-pwa-update",
+      "data-pwa-update-now",
+      "pwa-update",
+      "pwa-update-notice",
+      "site-pwa-update",
+    ]) {
+      assert.ok(
+        !html.includes(forbidden),
+        `${relative} contains removed update UI: ${forbidden}`,
+      );
+    }
+  }
   for (const [file] of pages) {
     const html = read(file);
     assert.ok(
@@ -184,6 +200,7 @@ if (mode === "seo") {
   for (const [file] of config.pwa.icons) read(`images/${file}`);
   const worker = read("service-worker.js");
   assert.ok(!worker.includes("__PWA_"));
+  assert.ok(!/SKIP_WAITING|skipWaiting\s*\(/.test(worker));
   assert.ok(worker.includes(config.site.basePath));
   assert.ok(worker.includes("`${PROJECT_BASE}assets/playground.css`"));
   for (const asset of [
