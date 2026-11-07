@@ -1,6 +1,6 @@
 {
   "name": "mazey-lazy-load-images",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Render responsive, lazy-loaded image collections.",
   "main": "./lib/index.cjs.js",
   "module": "./lib/index.esm.mjs",
