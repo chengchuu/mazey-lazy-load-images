@@ -68,8 +68,7 @@ function transformApi(file) {
   const alreadyTransformed = html.includes(seoStart);
   html = html
     .replace(new RegExp(`${seoStart}[\\s\\S]*?${seoEnd}`, "g"), "")
-    .replace(/<nav class="site-project-links"[\s\S]*?<\/nav>/g, "")
-    .replace(/<aside class="site-pwa-update"[\s\S]*?<\/aside>/g, "");
+    .replace(/<nav class="site-project-links"[\s\S]*?<\/nav>/g, "");
   const originalTitle =
     html.match(/<title>([^<]+)<\/title>/i)?.[1] ?? config.site.pages.api.title;
   const title = isIndex
@@ -112,10 +111,6 @@ function transformApi(file) {
   }
   if (isIndex && !/<h1\b/i.test(html))
     html = html.replace(/<h2\b/i, "<h1").replace(/<\/h2>/i, "</h1>");
-  html = html.replace(
-    "</body>",
-    '<aside class="site-pwa-update" data-pwa-update hidden><span>A website update is available.</span><button type="button" data-pwa-update-now>Update now</button></aside></body>',
-  );
   writeFileSync(file, html);
 }
 files(api, ".html").forEach(transformApi);

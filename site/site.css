@@ -160,23 +160,6 @@ a {
   padding: 2.5rem 0;
   background: var(--site-surface);
 }
-.pwa-update {
-  position: fixed;
-  z-index: 1090;
-  right: 1rem;
-  bottom: 1rem;
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  width: min(32rem, calc(100% - 2rem));
-  padding: 1rem;
-  border: 1px solid var(--site-border);
-  border-radius: 0.5rem;
-  background: var(--site-surface);
-}
-.pwa-update[hidden] {
-  display: none;
-}
 @media (max-width: 1199.98px) {
   .navbar-toggler {
     display: block;
